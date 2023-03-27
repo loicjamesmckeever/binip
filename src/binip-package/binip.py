@@ -44,10 +44,6 @@ def ip2bin(ip):
             bin_ip += octet
     return bin_ip
 
-def subnet2bin(subnet):
-    '''Given a subnet will split it into the subnet mask(decimal) and the network IP(binary).  Works for both IPv4 and IPv6.'''
-
-
 def in_subnet(ip, subnet):
     '''Given an IP and a subnet will return True if that IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
     #Determine if the IP and subnet are v4 or v6 and then split the IP and subnet by octet and get the mask from the subnet.
