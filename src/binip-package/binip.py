@@ -75,6 +75,18 @@ def in_subnet(ip, subnet):
     else:
         return False
     
+def ipbin(bin_ip):
+        '''Given an IP in binary for returns decimal form for IPv4 and hexadecimal form for IPv6.'''
+        if len(bin_ip) == 32:
+            octets = [bin_ip[i:i+8] for i in range(0,32,8)]
+            ip_address = '.'.join([str(int(octet,2)) for octet in octets])
+        elif len(bin_ip) == 128:
+            hexadecatets = [bin_ip[i:i+16] for i in range(0,128, 16)]
+            ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
+        else:
+            raise ValueError(f'{bin_ip} is not a valid binary IP address.')
+        return ip_address
+    
 class IP:
     def __init__(self, address):
         self.address = self.validate_address(address)
@@ -178,7 +190,7 @@ class Subnet:
     def __init__(self, address):
         self.address = self.validate_address(address)
         self.network = self.address.split('/')[0]
-        self.mask = self.address.split('/')[1]
+        self.mask = int(self.address.split('/')[1])
         
     def validate_address(self, address):
         '''Validate the submitted IP, works for both v4 and v6.'''
@@ -186,10 +198,10 @@ class Subnet:
         split_subnet = address.split('/')
         if len(split_subnet) == 2:
             network = split_subnet[0]
-            mask = split_subnet[1]
+            mask = int(split_subnet[1])
             if '.' in network:
-                if int(mask) not in range(0,33):
-                    raise ValueError(val_err)
+                if mask not in range(0,33):
+                    raise ValueError(val_err + '1')
                 ip_split = network.split('.')
                 if len(ip_split) != 4:
                     raise ValueError(val_err)
@@ -199,14 +211,14 @@ class Subnet:
                     if comp.fullmatch(octet):
                         return address
                     else:
-                        raise ValueError(val_err)
+                        raise ValueError(val_err + '2')
             elif ':' in network:
-                if int(mask) not in range(0,129):
-                    raise ValueError(val_err)
+                if mask not in range(0,129):
+                    raise ValueError(val_err + '3')
                 expanded = ipv6_expand(address)
                 ip_split = expanded.split(':')
                 if len(ip_split) != 8:
-                    raise ValueError(val_err)
+                    raise ValueError(val_err + '4')
                 regex = r'[0-9a-f]{,4}'
                 comp = re.compile(regex)
                 for hexadecatet in ip_split:
@@ -246,11 +258,11 @@ class Subnet:
                 new_split.append(hexadecatet)
             else:
                 new_split.append(hexadecatet)
-        expanded = ':'.join(new_split) + '/' + self.mask
+        expanded = ':'.join(new_split) + '/' + str(self.mask)
         return expanded
     
     def binip(self):
-        '''Given a subnet will return the subnet address and subnet mask in binary format.  Works for both IPv4 and IPv6.'''
+        '''Given a subnet will return the subnet network address, broadcast address and subnet mask in binary format.  Works for both IPv4 and IPv6.'''
         iptype = self.ip_type()
         network = self.network
         mask = self.mask
@@ -260,15 +272,17 @@ class Subnet:
             for octet in split_network:
                 octet = format(int(octet), '08b')
                 bin_network += octet
-            bin_mask = ''.join(['1' if i < int(mask) else '0' for i in range(0,33)])
+            bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,32)])
         elif iptype == 'v6':
             network = self.ipv6_expand().split('/')[0]
             split_network = network.split(':')
             for hexadecatet in split_network:
                 hexadecatet = format(int(hexadecatet, 16), '016b')
                 bin_network += hexadecatet
-            bin_mask = ''.join(['1' if i < int(mask) else '0' for i in range(0,129)])
-        return bin_network, bin_mask
+            bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,128)])
+        bin_broadcast = ''.join([bin_network[:mask],''.join(['1' for bit in bin_network[mask:]])])
+        bin_network = ''.join([bin_network[:mask],''.join(['0' for bit in bin_network[mask:]])])
+        return bin_network, bin_broadcast, bin_mask
     
     def in_subnet(self, ip):
         '''Given an IP will return True if that IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
@@ -286,3 +300,15 @@ class Subnet:
                 return True
             else:
                 return False
+            
+    def subnet_info(self):
+        '''Returns the network address, broadcast address and number of client IPs available for the subnet.'''
+        bin_network, bin_broadcast, bin_mask = self.binip()
+        clients = sum([2**bit for bit in range(0,bin_mask.count('0'))]) - 1
+        network = ipbin(bin_network)
+        broadcast = ipbin(bin_broadcast)
+        first_ip = ipbin(bin_network[:-1]+'1')
+        last_ip = ipbin(bin_broadcast[:-1]+'0')
+        client_range = first_ip + ' - ' + last_ip
+        info = {"Network address:":network, "Broadcast address":broadcast, "Number of client IPs:":clients, "Client IP range:":client_range}
+        return info
