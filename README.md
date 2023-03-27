@@ -1,11 +1,9 @@
-#Binip
-##Description
+Binip
+Description
 
-##Installation
+Installation
 
-##Usage
+Usage
 
-###License
+License
 MIT
-
-
