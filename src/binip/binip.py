@@ -918,12 +918,3 @@ class Subnet:
         elif self.ip_type() == 'v6':
             regex_pattern = self.toRegexv6(self.address, or_logic)
         return regex_pattern
-
-subnetv4 = Subnet('192.168.1.0/22')
-subnetv6 = Subnet('ac43:34f:45bc:2c::12/34')
-
-pattern4 = subnetv4.toRegex()
-pattern6 = subnetv6.toRegex()
-
-ipv4 = IP('192.168.1.24')
-print(ipv4.iptype)
