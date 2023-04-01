@@ -1,6 +1,6 @@
 import re
 
-from binip.binip import IP
+from binip.classes import IP
 
 #Test IP address
 def test_address():
