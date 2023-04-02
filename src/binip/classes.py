@@ -1,5 +1,7 @@
 import re
 
+from binip.functions import *
+
 class IP:
     def __init__(self, address):
         self.address = self.validate_address(address)
@@ -20,7 +22,7 @@ class IP:
                 else:
                     raise ValueError(val_err)
         elif ':' in address:
-            expanded = ipv6_expand(address)
+            expanded = self.ipv6_expand(address)
             ip_split = expanded.split(':')
             if len(ip_split) != 8:
                 raise ValueError(val_err)
@@ -129,7 +131,7 @@ class Subnet:
             elif ':' in network:
                 if mask not in range(0,129):
                     raise ValueError(val_err + '3')
-                expanded = ipv6_expand(address)
+                expanded = self.ipv6_expand(address)
                 ip_split = expanded.split(':')
                 if len(ip_split) != 8:
                     raise ValueError(val_err + '4')
@@ -159,7 +161,9 @@ class Subnet:
     @staticmethod
     def ipv6_expand(subnet):
         '''Given a shortened IPv6 subnet address will return the unshortened version.'''
-        split = subnet.split(':')
+        address = subnet.split('/')[0]
+        mask = subnet.split('/')[1]
+        split = address.split(':')
         zeros = ['0000' for i in range(0,9-len(split))]
         new_split = []
         for hexadecatet in split:
@@ -173,7 +177,7 @@ class Subnet:
                 new_split.append(hexadecatet)
             else:
                 new_split.append(hexadecatet)
-        expanded = ':'.join(new_split) + '/' + str(self.mask)
+        expanded = ':'.join(new_split) + '/' + mask
         return expanded
     
     def binip(self):

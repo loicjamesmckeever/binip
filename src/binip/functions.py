@@ -313,19 +313,55 @@ def ipv6_expand(ipv6):
     split = ipv6.split(':')
     zeros = ['0000' for i in range(0,9-len(split))]
     new_split = []
-    for octet in split:
-        if octet == '':
+    for hexadecatet in split:
+        if hexadecatet == '':
             new_split += zeros
-        elif octet == '0':
+        elif hexadecatet == '0':
             new_split.append('0000')
-        elif len(octet) < 4:
-            for i in range(0,4-len(octet)):
-                octet = '0' + octet
-            new_split.append(octet)
+        elif len(hexadecatet) < 4:
+            for i in range(0,4-len(hexadecatet)):
+                hexadecatet = '0' + hexadecatet
+            new_split.append(hexadecatet)
         else:
-            new_split.append(octet)
+            new_split.append(hexadecatet)
     new_ipv6 = ':'.join(new_split)
     return new_ipv6
+
+def ipv6_contract(ipv6):
+    '''Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.'''
+    ipv6_split = ipv6.split(':')
+    ipv6_contracted = []
+    #Remove leading zeros
+    for hexadecatet in ipv6_split:
+        while hexadecatet[0] == '0' and len(hexadecatet) > 1:
+                hexadecatet = hexadecatet[1:]
+        ipv6_contracted.append(hexadecatet)
+    print(ipv6_contracted)
+    #Remove largest set of repeating zero hexadecatets
+    #Find largest set of repeating zeros
+    i=0
+    zeros_to_remove = []
+    while i < 8:
+        zeros = []
+        if ipv6_contracted[i] == '0':
+            zeros.append(i)
+            j=1
+            while ipv6_contracted[i+j] == '0':
+                zeros.append(i+j)
+                j+=1
+            i+=j
+            if len(zeros) >= len(zeros_to_remove):
+                replacing_zeros = zeros
+        else:
+            i+=1
+    #Replace first zeros with empty string and remove the rest
+    ipv6_contracted[zeros_to_remove[0]] = ''
+    i = 0
+    for item in replacing_zeros[1:]:
+        ipv6_contracted.pop(item-i)
+        i += 1
+    ipv6_contracted = ':'.join(ipv6_contracted)
+    return ipv6_contracted
 
 def ip2bin(ip):
     '''Given an IP split will return the IP in binary format.  Works for both IPv4 and IPv6.'''
