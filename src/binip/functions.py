@@ -299,11 +299,36 @@ def toRegexv4(subnet, or_logic='|'):
     return expressions_list_full
 
 def ip_type(ip):
-    '''Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.'''
+    '''Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.  Will return None if neither.'''
     if '.' in ip:
-        iptype = 'v4'
+        ip_split = ip.split('.')
+        if len(ip_split) == 4:
+            regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
+            comp = re.compile(regex)
+            for octet in ip_split:
+                if not comp.fullmatch(octet):
+                    return None
+            iptype = 'v4'
+            return iptype
+        else:
+            return None
     elif ':' in ip:
-        iptype = 'v6'
+        if ip.count('::') > 1:
+            return None
+        else:
+            ip_split = ip.split(':')
+            if len(ip_split) > 8:
+                return None
+            elif '::' not in ip and len(ip_split) != 8:
+                return None
+            else:
+                regex = r'[0-9a-f]{,4}'
+                comp = re.compile(regex)
+                for hexadecatet in ip_split:
+                    if not comp.fullmatch(hexadecatet):
+                        return None
+                iptype = 'v6'
+                return iptype
     else:
         iptype = None
     return iptype
@@ -380,6 +405,19 @@ def ip2bin(ip):
             bin_ip += octet
     return bin_ip
 
+def bin2ip(bin_ip):
+        '''Given an IP in binary for returns decimal form for IPv4 and hexadecimal form for IPv6.'''
+        if len(bin_ip) == 32:
+            octets = [bin_ip[i:i+8] for i in range(0,32,8)]
+            ip_address = '.'.join([str(int(octet,2)) for octet in octets])
+        elif len(bin_ip) == 128:
+            hexadecatets = [bin_ip[i:i+16] for i in range(0,128, 16)]
+            ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
+        else:
+            raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
+                             the binary number you provided is {len(bin_ip)} bits long.''')
+        return ip_address
+
 def in_subnet(ip, subnet):
     '''Given an IP and a subnet will return True if that IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
     #Determine if the IP and subnet are v4 or v6 and then split the IP and subnet by octet and get the mask from the subnet.
@@ -406,16 +444,3 @@ def in_subnet(ip, subnet):
         return True
     else:
         return False
-    
-def bin2ip(bin_ip):
-        '''Given an IP in binary for returns decimal form for IPv4 and hexadecimal form for IPv6.'''
-        if len(bin_ip) == 32:
-            octets = [bin_ip[i:i+8] for i in range(0,32,8)]
-            ip_address = '.'.join([str(int(octet,2)) for octet in octets])
-        elif len(bin_ip) == 128:
-            hexadecatets = [bin_ip[i:i+16] for i in range(0,128, 16)]
-            ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
-        else:
-            raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
-                             the binary number you provided is {len(bin_ip)} bits long.''')
-        return ip_address
