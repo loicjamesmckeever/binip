@@ -9,36 +9,39 @@ class IP:
         
     def validate_address(self, address):
         '''Validate the submitted IP, works for both v4 and v6.'''
-        if '.' in address:
-            ip_split = address.split('.')
-            if len(ip_split) != 4:
-                raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
-            regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
-            comp = re.compile(regex)
-            for octet in ip_split:
-                if not comp.fullmatch(octet):
-                    raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
-            return address             
-        elif ':' in address:
-            if address.count('::') > 1:
-                count = address.count('::')
-                raise ValueError(f'Too many zero contractions: IPv6 addresses can only have a single set of 0s contracted to "::". The IP provided contains {count} contractions.')
-            else:
-                ip_split = address.split(':')
-                num_hex = f'Wrong number of hexadecatets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.'
-                if len(ip_split) > 8:
-                    raise ValueError(num_hex)
-                elif '::' not in address and len(ip_split) != 8:
-                    raise ValueError(num_hex)
+        if type(address) == type(''):
+            if '.' in address:
+                ip_split = address.split('.')
+                if len(ip_split) != 4:
+                    raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
+                regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
+                comp = re.compile(regex)
+                for octet in ip_split:
+                    if not comp.fullmatch(octet):
+                        raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
+                return address             
+            elif ':' in address:
+                if address.count('::') > 1:
+                    count = address.count('::')
+                    raise ValueError(f'Too many zero contractions: IPv6 addresses can only have a single set of 0s contracted to "::". The IP provided contains {count} contractions.')
                 else:
-                    regex = r'[0-9a-f]{,4}'
-                    comp = re.compile(regex)
-                    for hexadecatet in ip_split:
-                        if not comp.fullmatch(hexadecatet):
-                            raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
-                return address
+                    ip_split = address.split(':')
+                    num_hex = f'Wrong number of hexadecatets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.'
+                    if len(ip_split) > 8:
+                        raise ValueError(num_hex)
+                    elif '::' not in address and len(ip_split) != 8:
+                        raise ValueError(num_hex)
+                    else:
+                        regex = r'[0-9a-f]{,4}'
+                        comp = re.compile(regex)
+                        for hexadecatet in ip_split:
+                            if not comp.fullmatch(hexadecatet):
+                                raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
+                    return address
+            else:
+                raise ValueError(f'{address} is not a valid IPv4 or IPv6 address.')
         else:
-            raise ValueError('Input is not a valid IPv4 or IPv6 address.')
+            raise TypeError(f'IP should be a string not {type(address)}.')
 
     def __str__(self):
         return f'{self.address}'

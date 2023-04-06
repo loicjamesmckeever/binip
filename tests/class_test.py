@@ -28,3 +28,7 @@ def test_address_errors():
         test = IP('ac43:34f:45bc:2c:0:0:0:0:12')
     with pytest.raises(ValueError):
         test = IP('ac43:34f:45bc:2c:fffk:12')
+    with pytest.raises(ValueError):
+        test = IP('Nonesense')
+    with pytest.raises(TypeError):
+        test = IP(123)
