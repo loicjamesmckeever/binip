@@ -3,6 +3,31 @@ import re
 from binip.functions import *
 
 class IP:
+    '''
+        Class for IP objects.  Both IPv4 and IPv6 are supported.
+        -----
+        Attributes
+        ---
+        address: str
+            IP address.
+        iptype: str
+            Either v4 or v6.
+        -----
+        Methods
+        ---
+        validate_address(address):
+            Ensures user input is valid IP address.
+        ip_type():
+            Returns IP type; v4 or v6, of class.
+        ipv6_expand():
+            Given an IPv6 address will return the expanded version of address.  Adds leading zeros and
+            expands sets of zero hexadecatets that are contracted.
+        binip():
+            Returns binary version of IP address.
+        in_subnet(subnet):
+            Given a subnet returns True if IP in subnet or False if IP not in subnet.
+        -----
+    '''
     def __init__(self, address):
         self.address = self.validate_address(address)
         self.iptype = self.ip_type()
@@ -110,10 +135,43 @@ class IP:
                 return False
             
 class Subnet:
+    '''
+        Class for Subnet objects.  Both IPv4 and IPv6 are supported.
+        -----
+        Attributes
+        ---
+        address: str
+            Full subnet address.
+        network: str
+            Network address of subnet.
+        mask: int
+            Subnet mask.
+        iptype: str
+            Either v4 or v6.
+        -----
+        Methods
+        ---
+        validate_address(address):
+            Ensures user input is valid IP address.
+        ip_type():
+            Returns IP type; v4 or v6, of class.
+        ipv6_expand():
+            Given an IPv6 subnet address will return the expanded version of address.  Adds leading zeros and
+            expands sets of zero hexadecatets that are contracted.
+        binip():
+            Returns binary version of subnet address.
+        subnet_info():
+            Returns dictionary that incudes the network address, broadcast address, number of available clients and
+            client IP range.
+        in_subnet(subnet):
+            Given an IP returns True if IP in subnet or False if IP not in subnet.
+        -----
+    '''
     def __init__(self, address):
         self.address = self.validate_address(address)
         self.network = self.address.split('/')[0]
         self.mask = int(self.address.split('/')[1])
+        self.iptype = self.ip_type()
         
     def validate_address(self, address):
         '''Validate the submitted IP, works for both v4 and v6.'''
@@ -231,10 +289,10 @@ class Subnet:
         '''Returns the network address, broadcast address and number of client IPs available for the subnet.'''
         bin_network, bin_broadcast, bin_mask = self.binip()
         clients = sum([2**bit for bit in range(0,bin_mask.count('0'))]) - 1
-        network = ipbin(bin_network)
-        broadcast = ipbin(bin_broadcast)
-        first_ip = ipbin(bin_network[:-1]+'1')
-        last_ip = ipbin(bin_broadcast[:-1]+'0')
+        network = bin2ip(bin_network)
+        broadcast = bin2ip(bin_broadcast)
+        first_ip = bin2ip(bin_network[:-1]+'1')
+        last_ip = bin2ip(bin_broadcast[:-1]+'0')
         client_range = first_ip + ' - ' + last_ip
         info = {"Network address:":network, "Broadcast address":broadcast, "Number of client IPs:":clients, "Client IP range:":client_range}
         return info

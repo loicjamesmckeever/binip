@@ -1,9 +1,25 @@
 Binip
-Description
+Description:
+Library for IP neworking and subnetting.
 
-Installation
+Installation:
+Download .whl file and run:
+pip install binip-0.0.1-py3-none-any.whl
 
-Usage
+Documntation:
+Classes:
+IP
+Subnet
 
-License
-MIT
+Functions:
+ip_type
+ipv6_expand
+ipv6_contract
+ip2bin
+bin2ip
+in_subnet
+toRegexv4
+toRegexv6
+
+License:
+Basic MIT license.
