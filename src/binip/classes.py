@@ -39,7 +39,7 @@ class IP:
                 ip_split = address.split('.')
                 if len(ip_split) != 4:
                     raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
-                regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
+                regex = r'1?\d{1,2}|2[0-4]\d|25[0-5]'
                 comp = re.compile(regex)
                 for octet in ip_split:
                     if not comp.fullmatch(octet):
@@ -186,7 +186,7 @@ class Subnet:
                 ip_split = network.split('.')
                 if len(ip_split) != 4:
                     raise ValueError(val_err)
-                regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
+                regex = r'1?\d{1,2}|2[0-4]\d|25[0-5]'
                 comp = re.compile(regex)
                 for octet in ip_split:
                     if comp.fullmatch(octet):
