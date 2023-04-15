@@ -1,6 +1,6 @@
 import pytest
 
-from binip.classes import IP
+from binip.classes import IP, Subnet
 
 #Test IP address
 def test_address():
@@ -27,8 +27,36 @@ def test_address_errors():
     with pytest.raises(ValueError):
         test = IP('ac43:34f:45bc:2c:0:0:0:0:12')
     with pytest.raises(ValueError):
-        test = IP('ac43:34f:45bc:2c:fffk:12')
+        test = IP('ac43:34f:45bc:2c:fffk:0:0:12')
     with pytest.raises(ValueError):
         test = IP('Nonesense')
     with pytest.raises(TypeError):
         test = IP(123)
+
+#Test Subnet address errors
+def test_subnet_address_errors():
+    '''Test that the Subnet class raises the proper errors given invalid inputs.'''
+    with pytest.raises(ValueError):
+        test = Subnet('192.168.1.24')
+    with pytest.raises(ValueError):
+        test = Subnet('192.168.1/24')
+    with pytest.raises(ValueError):
+        test = Subnet('192.168.1.0/33')
+    with pytest.raises(ValueError):
+        test = Subnet('192.168.1.24.48/24')
+    with pytest.raises(ValueError):
+        test = Subnet('192.168.1.300/24')
+    with pytest.raises(ValueError):
+        test = Subnet('ac43:34f:45bc:2c::12')
+    with pytest.raises(ValueError):
+        test = Subnet('ac43:34f:45bc:2c:3:12/48')
+    with pytest.raises(ValueError):
+        test = Subnet('ac43:34f:45bc:2c::12/129')
+    with pytest.raises(ValueError):
+        test = Subnet('ac43:34f:45bc:2c:fffk:0:0:0:12/48')
+    with pytest.raises(ValueError):
+        test = Subnet('ac43:34f:45bc:2c:fffk:0:0:12/48')
+    with pytest.raises(ValueError):
+        test = Subnet('Nonesense')
+    with pytest.raises(TypeError):
+        test = Subnet(123)

@@ -39,10 +39,8 @@ class IP:
                 ip_split = address.split('.')
                 if len(ip_split) != 4:
                     raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
-                regex = r'1?\d{1,2}|2[0-4]\d|25[0-5]'
-                comp = re.compile(regex)
                 for octet in ip_split:
-                    if not comp.fullmatch(octet):
+                    if int(octet) not in range(0,256):
                         raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
                 return address             
             elif ':' in address:
@@ -57,14 +55,14 @@ class IP:
                     elif '::' not in address and len(ip_split) != 8:
                         raise ValueError(num_hex)
                     else:
-                        regex = r'[0-9a-f]{,4}'
-                        comp = re.compile(regex)
                         for hexadecatet in ip_split:
-                            if not comp.fullmatch(hexadecatet):
+                            if hexadecatet == '':
+                                hexadecatet = '0'
+                            if int(hexadecatet, 16) not in range(0,65536):
                                 raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
                     return address
             else:
-                raise ValueError(f'{address} is not a valid IPv4 or IPv6 address.')
+                raise ValueError(f'Invalid format: {address} is not a valid IPv4 or IPv6 address.')
         else:
             raise TypeError(f'IP should be a string not {type(address)}.')
 
@@ -175,42 +173,38 @@ class Subnet:
         
     def validate_address(self, address):
         '''Validate the submitted IP, works for both v4 and v6.'''
-        val_err = 'This is not a valid Subnet address.'
-        split_subnet = address.split('/')
-        if len(split_subnet) == 2:
-            network = split_subnet[0]
-            mask = int(split_subnet[1])
-            if '.' in network:
-                if mask not in range(0,33):
-                    raise ValueError(val_err + '1')
-                ip_split = network.split('.')
-                if len(ip_split) != 4:
-                    raise ValueError(val_err)
-                regex = r'1?\d{1,2}|2[0-4]\d|25[0-5]'
-                comp = re.compile(regex)
-                for octet in ip_split:
-                    if comp.fullmatch(octet):
-                        return address
-                    else:
-                        raise ValueError(val_err + '2')
-            elif ':' in network:
-                if mask not in range(0,129):
-                    raise ValueError(val_err + '3')
-                expanded = self.ipv6_expand(address)
-                ip_split = expanded.split(':')
-                if len(ip_split) != 8:
-                    raise ValueError(val_err + '4')
-                regex = r'[0-9a-f]{,4}'
-                comp = re.compile(regex)
-                for hexadecatet in ip_split:
-                    if comp.fullmatch(hexadecatet):
-                        return address
-                    else:
-                        raise ValueError(val_err)
+        if type(address) == type(''):
+            split_subnet = address.split('/')
+            if len(split_subnet) == 2:
+                network = split_subnet[0]
+                mask = int(split_subnet[1])
+                if '.' in network:
+                    if mask not in range(0,33):
+                        raise ValueError(f'Invalid IPv4 network mask: mask should be integer between 0 and 32. {mask} does not fall in that range.')
+                    ip_split = network.split('.')
+                    if len(ip_split) != 4:
+                        raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
+                    for octet in ip_split:
+                        if int(octet) not in range(0,256):
+                            raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
+                    return address
+                elif ':' in network:
+                    if mask not in range(0,129):
+                        raise ValueError(f'Invalid IPv6 network mask: mask should be integer between 0 and 128. {mask} does not fall in that range.')
+                    expanded = self.ipv6_expand(address).split('/')[0]
+                    ip_split = expanded.split(':')
+                    if len(ip_split) != 8:
+                        raise ValueError(f'Wrong number of octets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.')
+                    for hexadecatet in ip_split:
+                        if int(hexadecatet, 16) not in range(0,65536):
+                            raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
+                    return address
+                else:
+                    raise ValueError(f'Invalid format: {address} is not a valid subnet format.')
             else:
-                raise ValueError(val_err)
+                raise ValueError(f'Invalid format: {address} is not a valid subnet format.')
         else:
-            raise ValueError(val_err)
+            raise TypeError(f'Subnet should be a string not a {type(address)}')
     
     def __str__(self):
         return f'{self.address}'
