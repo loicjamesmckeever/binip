@@ -303,10 +303,8 @@ def ip_type(ip):
     if '.' in ip:
         ip_split = ip.split('.')
         if len(ip_split) == 4:
-            regex = r'1?\d{,2}|2[0-4]\d|25[0-5]'
-            comp = re.compile(regex)
             for octet in ip_split:
-                if not comp.fullmatch(octet):
+                if int(octet) not in range(0,256):
                     return None
             iptype = 'v4'
             return iptype
@@ -322,10 +320,10 @@ def ip_type(ip):
             elif '::' not in ip and len(ip_split) != 8:
                 return None
             else:
-                regex = r'[0-9a-f]{,4}'
-                comp = re.compile(regex)
                 for hexadecatet in ip_split:
-                    if not comp.fullmatch(hexadecatet):
+                    if hexadecatet == '':
+                        hexadecatet = '0'
+                    if int(hexadecatet, 16) not in range(0,65536):
                         return None
                 iptype = 'v6'
                 return iptype
