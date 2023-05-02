@@ -36,6 +36,9 @@ class IP:
         '''
         self.address = self.validate_address(address)
         self.iptype = self.ip_type()
+        if self.iptype == 'v6':
+            self.expanded = self.ipv6_expand(address)
+            self.contracted = self.ipv6_contract(address)
         
     def validate_address(self, address):
         '''
@@ -150,6 +153,55 @@ class IP:
                 new_split.append(hexadecatet)
         expanded = ':'.join(new_split)
         return expanded
+    
+    @staticmethod
+    def ipv6_contract(address) -> str:
+        '''
+        Given an unshortened IPv6 address return contracted version.
+        -----
+        Parameters
+        ---
+        address: str
+            IPv6 address.
+        -----
+        Returns
+        ---
+        contracted: str
+            Shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+        '''
+        address = ipv6_expand(address)
+        ipv6_split = address.split(':')
+        ipv6_contracted = []
+        #Remove leading zeros
+        for hexadecatet in ipv6_split:
+            while hexadecatet[0] == '0' and len(hexadecatet) > 1:
+                    hexadecatet = hexadecatet[1:]
+            ipv6_contracted.append(hexadecatet)
+        #Remove largest set of repeating zero hexadecatets
+        #Find largest set of repeating zeros
+        i=0
+        replacing_zeros = []
+        while i < 8:
+            zeros = []
+            if ipv6_contracted[i] == '0':
+                zeros.append(i)
+                j=1
+                while ipv6_contracted[i+j] == '0':
+                    zeros.append(i+j)
+                    j+=1
+                i+=j
+                if len(zeros) >= len(replacing_zeros):
+                    replacing_zeros = zeros
+            else:
+                i+=1
+        #Replace first zeros with empty string and remove the rest
+        ipv6_contracted[replacing_zeros[0]] = ''
+        i = 0
+        for item in replacing_zeros[1:]:
+            ipv6_contracted.pop(item-i)
+            i += 1
+        contracted = ':'.join(ipv6_contracted)
+        return contracted
     
     def binip(self) -> str:
         '''

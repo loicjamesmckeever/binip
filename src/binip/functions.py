@@ -352,6 +352,7 @@ def ipv6_expand(ipv6):
 
 def ipv6_contract(ipv6):
     '''Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.'''
+    ipv6 = ipv6_expand(ipv6)
     ipv6_split = ipv6.split(':')
     ipv6_contracted = []
     #Remove leading zeros
@@ -359,11 +360,10 @@ def ipv6_contract(ipv6):
         while hexadecatet[0] == '0' and len(hexadecatet) > 1:
                 hexadecatet = hexadecatet[1:]
         ipv6_contracted.append(hexadecatet)
-    print(ipv6_contracted)
     #Remove largest set of repeating zero hexadecatets
     #Find largest set of repeating zeros
     i=0
-    zeros_to_remove = []
+    replacing_zeros = []
     while i < 8:
         zeros = []
         if ipv6_contracted[i] == '0':
@@ -373,12 +373,12 @@ def ipv6_contract(ipv6):
                 zeros.append(i+j)
                 j+=1
             i+=j
-            if len(zeros) >= len(zeros_to_remove):
+            if len(zeros) >= len(replacing_zeros):
                 replacing_zeros = zeros
         else:
             i+=1
     #Replace first zeros with empty string and remove the rest
-    ipv6_contracted[zeros_to_remove[0]] = ''
+    ipv6_contracted[replacing_zeros[0]] = ''
     i = 0
     for item in replacing_zeros[1:]:
         ipv6_contracted.pop(item-i)
