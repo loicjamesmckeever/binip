@@ -144,8 +144,8 @@ def toRegexv6(subnet, or_logic='|'):
             base_pattern += hexadecatet_stripped + ':'
     #If bit=0 then no hexadecatet is divided and we can build the RegEx pattern
     if bit == 0:
-        base_pattern += '.*/'
-        regex = '/' + base_pattern
+        base_pattern += '.*'
+        regex = base_pattern
     else:
         #Get the first and last values of the hexadecatet that is divided
         divided = ipv6_split[hexadecatet+1]
@@ -164,8 +164,8 @@ def toRegexv6(subnet, or_logic='|'):
         last = f'{last:04x}'
         #Get the RegEx ranges for the divided octet
         ranges = hex_range(first, last)
-        full_ranges = ['/' + base_pattern + range + ':.*/' for range in ranges]
-        regex = f' {or_logic} '.join(full_ranges)
+        full_ranges = [base_pattern + range + ':.*' for range in ranges]
+        regex = f'{or_logic}'.join(full_ranges)
     return regex
 
 def toRegexv4(subnet, or_logic='|'):
@@ -191,18 +191,17 @@ def toRegexv4(subnet, or_logic='|'):
         expressions_list.append(str(first_octet)+'.'+str(second_octet)+'.'+str(third_octet)+'.*')
 
     if mask in (9,10,11,12,13,14,15):
-        begin_ex='/'+str(first_octet)+'.'
-        end_ex='.[0-9]{1,3}.[0-9]{1,3}/'
+        begin_ex=str(first_octet)+'.'
+        end_ex='.[0-9]{1,3}.[0-9]{1,3}'
         start=second_octet
 
     if mask in (17,18,19,20,21,22,23):
-        begin_ex='/'+str(first_octet)+'.'+str(second_octet)+'.'
-        end_ex='.[0-9]{1,3}/'
+        begin_ex=str(first_octet)+'.'+str(second_octet)+'.'
+        end_ex='.[0-9]{1,3}'
         start=third_octet
 
     if mask in (25,26,27,28,29,30,31,32):
-        begin_ex='/'+str(first_octet)+'.'+str(second_octet)+'.'+str(third_octet)+'.'
-        end_ex='/'
+        begin_ex=str(first_octet)+'.'+str(second_octet)+'.'+str(third_octet)+'.'
         start=fourth_octet
 
     if mask in (9,17,25):
@@ -401,6 +400,8 @@ def ip2bin(ip):
         for octet in split_ip:
             octet = format(int(octet, 16), '016b')
             bin_ip += octet
+    else:
+        raise ValueError(f'''{ip} is neither an IPv4 or an IPv6 address.''')
     return bin_ip
 
 def bin2ip(bin_ip):
@@ -418,25 +419,13 @@ def bin2ip(bin_ip):
 
 def in_subnet(ip, subnet):
     '''Given an IP and a subnet will return True if that IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
-    #Determine if the IP and subnet are v4 or v6 and then split the IP and subnet by octet and get the mask from the subnet.
-    split_ip = ip.split('.')
-    split_subnet = subnet.split('/')
-    mask = int(split_subnet[1])
-    split_network = split_subnet[0].split('.')
-    if len(split_ip) == 1 and len(split_network) == 1:
-        mode = 'v6'
-        ip = ipv6_expand(ip)
-        split_ip = ip.split(':')
-        network = ipv6_expand(split_subnet[0])
-        split_network = network.split(':')
-    elif len(split_ip) != len(split_subnet): #This is the case if the function is given an IP and a subnet of different versions.
-        return False
-    else:
-        mode = 'v4'
+    subnet_split = subnet.split('/')
+    network = subnet_split[0]
+    mask = int(subnet_split[1])
     #Convert the IP to binary
-    bin_ip = ip2bin(split_ip, mode)
+    bin_ip = ip2bin(ip)
     #Convert the subnet to binary
-    bin_network = ip2bin(split_network, mode)
+    bin_network = ip2bin(network)
     #Compare the network portion of the IP and the subnet to see if they match.
     if bin_ip[:mask] == bin_network[:mask]:
         return True

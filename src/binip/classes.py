@@ -300,6 +300,7 @@ class Subnet:
         self.network = self.address.split('/')[0]
         self.mask = int(self.address.split('/')[1])
         self.iptype = self.ip_type()
+        self.info = self.subnet_info()
         
     def validate_address(self, address):
         '''Validate the submitted IP, works for both v4 and v6.'''
