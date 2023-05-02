@@ -297,6 +297,15 @@ def toRegexv4(subnet, or_logic='|'):
     expressions_list_full =f'{or_logic}'.join([ranget for ranget in expressions_list])
     return expressions_list_full
 
+def toRegex(subnet, or_logic='|'):
+        subnet_split = subnet.split('/')
+        iptype = ip_type(subnet_split[0])
+        if iptype == 'v4':
+            regex_pattern = self.toRegexv4(self.address, or_logic)
+        elif iptype == 'v6':
+            regex_pattern = self.toRegexv6(self.address, or_logic)
+        return regex_pattern
+
 def ip_type(ip):
     '''Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.  Will return None if neither.'''
     if '.' in ip:
