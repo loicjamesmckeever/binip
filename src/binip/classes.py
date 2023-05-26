@@ -325,12 +325,19 @@ class Subnet:
                 Subnet mask.
             info: dict
                 Subnet info; network and broadcast addresses, nuber of IPs and IP range of subnet.
+            expanded: str
+                Expended version of IPv6 subnet address.
+            contracted: str
+                Contracted version of IPv6 subnet address.
         '''
         self.address = self.validate_address(address)
         self.network = self.address.split('/')[0]
         self.mask = int(self.address.split('/')[1])
         self.iptype = self.ip_type()
         self.info = self.subnet_info()
+        if self.iptype == 'v6':
+            self.expanded = self.ipv6_expand(address)
+            self.contracted = self.ipv6_contract(address)
         
     def validate_address(self, address):
         '''
@@ -418,17 +425,17 @@ class Subnet:
     @staticmethod
     def ipv6_expand(subnet) -> str:
         '''
-            Given a shortened IPv6 address will return the unshortened version.
+            Given a shortened IPv6 subnet address will return the unshortened version.
             -----
             Parameters
             ---
             address: str
-                IPv6 address.
+                IPv6 subnet address.
             -----
             Returns
             ---
             expanded: str
-                Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
+                Expanded IPv6 subnet address.  Adds leading zeros and expands contraced zeros.
         '''
         address = subnet.split('/')[0]
         mask = subnet.split('/')[1]
@@ -448,6 +455,57 @@ class Subnet:
                 new_split.append(hexadecatet)
         expanded = ':'.join(new_split) + '/' + mask
         return expanded
+    
+    @staticmethod
+    def ipv6_contract(subnet) -> str:
+        '''
+            Given an unshortened IPv6 subnet address return contracted version.
+            -----
+            Parameters
+            ---
+            address: str
+                IPv6 subnet address.
+            -----
+            Returns
+            ---
+            contracted: str
+                Shortened IPv6 subnet address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+        '''
+        subnet_split = subnet.split('/')
+        address = ipv6_expand(subnet_split[0])
+        mask = subnet_split[1]
+        ipv6_split = address.split(':')
+        ipv6_contracted = []
+        #Remove leading zeros
+        for hexadecatet in ipv6_split:
+            while hexadecatet[0] == '0' and len(hexadecatet) > 1:
+                    hexadecatet = hexadecatet[1:]
+            ipv6_contracted.append(hexadecatet)
+        #Remove largest set of repeating zero hexadecatets
+        #Find largest set of repeating zeros
+        i=0
+        replacing_zeros = []
+        while i < 8:
+            zeros = []
+            if ipv6_contracted[i] == '0':
+                zeros.append(i)
+                j=1
+                while ipv6_contracted[i+j] == '0':
+                    zeros.append(i+j)
+                    j+=1
+                i+=j
+                if len(zeros) >= len(replacing_zeros):
+                    replacing_zeros = zeros
+            else:
+                i+=1
+        #Replace first zeros with empty string and remove the rest
+        ipv6_contracted[replacing_zeros[0]] = ''
+        i = 0
+        for item in replacing_zeros[1:]:
+            ipv6_contracted.pop(item-i)
+            i += 1
+        contracted = ':'.join(ipv6_contracted) + '/' + mask
+        return contracted
     
     def binip(self) -> str:
         '''
