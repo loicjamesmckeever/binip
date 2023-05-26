@@ -29,10 +29,19 @@ class IP:
     '''
     def __init__(self, address):
         '''
+            Initialzing the IP class object.
+            -----
             Parameters
             ---
             address: str
                 IP address, either v4 or v6.
+            -----
+            Returns
+            ---
+            address: str
+                Validated IP address, etiher v4 or v6.
+            iptype: str
+                Either 'v4' or 'v6' depending on IP type.
         '''
         self.address = self.validate_address(address)
         self.iptype = self.ip_type()
@@ -104,17 +113,17 @@ class IP:
         
     def ip_type(self) -> str:
         '''
-        Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.
-        -----
-        Parameters
-        ---
-        self: IP class object
-            Uses the IP address of the class object.
-        -----
-        Returns
-        ---
-        iptype: str
-            IP address type, either v4 or v6.
+            Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.
+            -----
+            Parameters
+            ---
+            self: IP class object
+                Uses the IP address of the class object.
+            -----
+            Returns
+            ---
+            iptype: str
+                IP address type, either v4 or v6.
         '''
         if '.' in self.address:
             iptype = 'v4'
@@ -125,17 +134,17 @@ class IP:
     @staticmethod
     def ipv6_expand(address) -> str:
         '''
-        Given a shortened IPv6 address will return the unshortened version.
-        -----
-        Parameters
-        ---
-        address: str
-            IPv6 address.
-        -----
-        Returns
-        ---
-        expanded: str
-            Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
+            Given a shortened IPv6 address will return the unshortened version.
+            -----
+            Parameters
+            ---
+            address: str
+                IPv6 address.
+            -----
+            Returns
+            ---
+            expanded: str
+                Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
         '''
         split = address.split(':')
         zeros = ['0000' for i in range(0,9-len(split))]
@@ -157,17 +166,17 @@ class IP:
     @staticmethod
     def ipv6_contract(address) -> str:
         '''
-        Given an unshortened IPv6 address return contracted version.
-        -----
-        Parameters
-        ---
-        address: str
-            IPv6 address.
-        -----
-        Returns
-        ---
-        contracted: str
-            Shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+            Given an unshortened IPv6 address return contracted version.
+            -----
+            Parameters
+            ---
+            address: str
+                IPv6 address.
+            -----
+            Returns
+            ---
+            contracted: str
+                Shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
         '''
         address = ipv6_expand(address)
         ipv6_split = address.split(':')
@@ -205,17 +214,17 @@ class IP:
     
     def binip(self) -> str:
         '''
-        Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
-        -----
-        Parameters
-        ---
-        self: IP class object
-            Uses the IP address of the class object.
-        -----
-        Returns
-        ---
-        bin_ip: str
-            Same IP address in binary format.
+            Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
+            -----
+            Parameters
+            ---
+            self: IP class object
+                Uses the IP address of the class object.
+            -----
+            Returns
+            ---
+            bin_ip: str
+                Same IP address in binary format.
         '''
         iptype = self.ip_type()
         ip = self.address
@@ -235,17 +244,17 @@ class IP:
     
     def in_subnet(self, subnet) -> bool:
         '''
-        Given a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
-        -----
-        Parameter
-        ---
-        subnet: str
-            Subnet address, turns into Subnet class object for validation.
-        -----
-        Returns
-        ---
-        bool
-            True if IP is in the given subnet, otherwise returns False.
+            Given a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
+            -----
+            Parameter
+            ---
+            subnet: str
+                Subnet address, turns into Subnet class object for validation.
+            -----
+            Returns
+            ---
+            bool
+                True if IP is in the given subnet, otherwise returns False.
         '''
         #Determine if the IP and subnet are v4 or v6 and then split the IP and subnet by octet and get the mask from the subnet.
         network = Subnet(subnet)
@@ -296,6 +305,27 @@ class Subnet:
         -----
     '''
     def __init__(self, address):
+        '''
+            Initialzing the Subnet class object.
+            -----
+            Parameters
+            ---
+            address: str
+                Subnet address, either v4 or v6.
+            -----
+            Returns
+            ---
+            address: str
+                Validated subnet address, etiher v4 or v6.
+            iptype: str
+                Either 'v4' or 'v6' depending on IP type.
+            network: str
+                Network address of subnet.
+            mask: int
+                Subnet mask.
+            info: dict
+                Subnet info; network and broadcast addresses, nuber of IPs and IP range of subnet.
+        '''
         self.address = self.validate_address(address)
         self.network = self.address.split('/')[0]
         self.mask = int(self.address.split('/')[1])
@@ -303,7 +333,29 @@ class Subnet:
         self.info = self.subnet_info()
         
     def validate_address(self, address):
-        '''Validate the submitted IP, works for both v4 and v6.'''
+        '''
+            Validates a given subnet address, works for both IPv4 and IPv6.
+            -----
+            Parameters
+            ---
+            address: str
+                Subnet address, either v4 or v6.
+            -----
+            Returns
+            ---
+            address: str
+                Validated subnet address, either v4 or v6.
+            -----
+            Raises
+            ---
+            TyperError
+                If input parameter is not of type string.
+            ValueError
+                If the network mask is invalid.  Expected values are between 0 and 32 for IPv4 and between 0 and 128 for IPv6.
+                If the number of octets or hexadecatets is invalid.  Expected values are 4 and 8 for IPv4 and IPv6 respectively.
+                If an invalid decimal or hexadecimal is provided. Expected decimal values are between 0 and 255 for IPv4 and expected hexadecial values are between 0 and ffff for IPv6.
+                If an invalid IPv4 or IPv6 format is used.  Includes missing periods or colons as well as multiple zero contractions in IPv6.
+        '''
         if type(address) == type(''):
             split_subnet = address.split('/')
             if len(split_subnet) == 2:
@@ -344,7 +396,19 @@ class Subnet:
         return f'Subnet address: {self.address}, subnet IP type: {self.iptype}'
     
     def ip_type(self) -> str:
-        '''Given a subnet address will return 'v4' if IPv4 or 'v6' if IPv6.'''
+        '''
+            Given a subnet will return 'v4' if IPv4 or 'v6' if IPv6.
+            -----
+            Parameters
+            ---
+            self: Subnet class object
+                Uses the subnet address of the class object.
+            -----
+            Returns
+            ---
+            iptype: str
+                Subnet address type, either v4 or v6.
+        '''
         if '.' in self.address:
             iptype = 'v4'
         elif ':' in self.address:
@@ -353,7 +417,19 @@ class Subnet:
     
     @staticmethod
     def ipv6_expand(subnet) -> str:
-        '''Given a shortened IPv6 subnet address will return the unshortened version.'''
+        '''
+            Given a shortened IPv6 address will return the unshortened version.
+            -----
+            Parameters
+            ---
+            address: str
+                IPv6 address.
+            -----
+            Returns
+            ---
+            expanded: str
+                Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
+        '''
         address = subnet.split('/')[0]
         mask = subnet.split('/')[1]
         split = address.split(':')
@@ -374,7 +450,23 @@ class Subnet:
         return expanded
     
     def binip(self) -> str:
-        '''Given a subnet will return the subnet network address, broadcast address and subnet mask in binary format.  Works for both IPv4 and IPv6.'''
+        '''
+            Given a subnet will return the subnet network address, broadcast address and network mask in binary format.  Works for both IPv4 and IPv6.
+            -----
+            Parameters
+            ---
+            self: Subnet class object
+                Uses the subnet address of the class object.
+            -----
+            Returns
+            ---
+            bin_network: str
+                Network address in binary format.
+            bin_broadcast: str
+                Broadcast address in binary format.
+            bin_mask: str
+                Network mask in binary format.
+        '''
         iptype = self.ip_type()
         network = self.network
         mask = self.mask
@@ -397,7 +489,19 @@ class Subnet:
         return bin_network, bin_broadcast, bin_mask
     
     def in_subnet(self, ip) -> bool:
-        '''Given an IP will return True if that IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
+        '''
+            Given an IP will return True if the IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
+            -----
+            Parameter
+            ---
+            subnet: str
+                IP address, turns into IP class object for validation.
+            -----
+            Returns
+            ---
+            bool
+                True if given IP is in the subnet, otherwise returns False.
+        '''
         ip = IP(ip)
         iptype = ip.ip_type()
         subnettype = self.ip_type()
@@ -413,7 +517,18 @@ class Subnet:
                 return False
             
     def subnet_info(self) -> dict:
-        '''Returns the network address, broadcast address and number of client IPs available for the subnet.'''
+        '''
+            Returns the network address, broadcast address and number of client IPs available for the subnet.
+            -----
+            Parameters
+            ---
+            self: Subnet class object
+            -----
+            Returns
+            ---
+            subnet_info: dict
+                Dictionary that includes the network address, broadcast address, number of client IPs available and the IP range of the subnet.
+        '''
         bin_network, bin_broadcast, bin_mask = self.binip()
         clients = sum([2**bit for bit in range(0,bin_mask.count('0'))]) - 1
         network = bin2ip(bin_network)
@@ -426,6 +541,21 @@ class Subnet:
     
     @staticmethod
     def hex_range(first, last) -> list:
+        '''
+            Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range.
+            -----
+            Parameters
+            ---
+            first: hexadecimal int
+                First value of the range.
+            last: hexadecimal int
+                Last value of the range.
+            -----
+            Returns
+            ---
+            ranges: list
+                List of RegEx patterns that can be used to match every value in the given range.
+        '''
         ranges = []
         if first[0] == last[0]:
             if first[1]==last[1]:
@@ -547,7 +677,21 @@ class Subnet:
 
     @staticmethod
     def toRegexv6(subnet, or_logic='|') -> str:
-        '''Returns a RegEx pattern to match the given IPv6 subnet.'''
+        '''
+            Returns a RegEx pattern to match the given IPv6 subnet.
+            -----
+            Parameters
+            ---
+            subnet: Subnet class object
+                Subnet to get RegEx pattern of.
+            or_logic: str
+                Symbol to be used as OR, default it |.
+            -----
+            Returns
+            ---
+            regex: str
+                RegEx pattern to match every IP address in the given IPv6subnet.
+        '''
         subnet_split = subnet.split('/')
         ipv6, mask = subnet_split[0], int(subnet_split[1])
         ipv6 = ipv6_expand(ipv6)
@@ -596,7 +740,21 @@ class Subnet:
 
     @staticmethod
     def toRegexv4(subnet, or_logic='|') -> str:
-        '''Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.'''
+        '''
+            Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.
+            -----
+            Parameters
+            ---
+            subnet: Subnet class object
+                Subnet to get RegEx pattern of.
+            or_logic: str
+                Symbol to be used as OR, default it |.
+            -----
+            Returns
+            ---
+            regex: str
+                RegEx pattern to match every IP address in the given IPv4 subnet.
+        '''
         subnet_split=subnet.split('.')
         mask=int(subnet_split[3].split('/')[1])
         first_octet=int(subnet_split[0])
@@ -722,10 +880,25 @@ class Subnet:
                 pass
             else:
                 expressions_list.append(begin_ex+items+end_ex)
-        expressions_list_full =f'{or_logic}'.join([ranget for ranget in expressions_list])
-        return expressions_list_full
+        regex =f'{or_logic}'.join([ranget for ranget in expressions_list])
+        return regex
     
     def toRegex(self, or_logic='|') -> str:
+        '''
+            Returns a RegEx pattern to match the given subnet.  Works for both IPv4 and IPv6.
+            -----
+            Parameters
+            ---
+            subnet: Subnet class object
+                Subnet to get RegEx pattern of.
+            or_logic: str
+                Symbol to be used as OR, default it |.
+            -----
+            Returns
+            ---
+            regex_pattern: str
+                RegEx pattern to match every IP address in the given subnet.
+        '''
         if self.ip_type() == 'v4':
             regex_pattern = self.toRegexv4(self.address, or_logic)
         elif self.ip_type() == 'v6':
