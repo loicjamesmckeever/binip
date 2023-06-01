@@ -14,8 +14,10 @@ def test_ip_type():
     '''Test the iptype attribute and ip_type() method of the IP class.'''
     ipv4 = IP('192.168.1.24')
     ipv6 = IP('ac43:34f:45bc:2c::12')
-    expected = ['v4', 'v6']
-    actual = [ipv4.iptype, ipv6.iptype]
+    subnetv4 = Subnet('192.168.1.0/24')
+    subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
+    expected = ['v4', 'v6', 'v4', 'v6']
+    actual = [ipv4.iptype, ipv6.iptype, subnetv4.iptype, subnetv6.iptype]
     assert actual == expected, "ip_type() method is not functioning correctly."
 
 def test_ipv6_expand_contract():
@@ -41,6 +43,14 @@ def test_in_subnet():
     expected = [True, False, True, False]
     actual = [ipv4.in_subnet('192.168.1.0/24'), ipv4.in_subnet('192.168.2.0/24'), ipv6.in_subnet('ac43:34f:45bc:2c::12/32'), ipv6.in_subnet('ac43:34fa:45bc:2c::12/32')]
     assert actual == expected, "in_subnet() method is not functioning correctly."
+
+def test_subnet_info():
+    '''Test subnet info such as mask, gateway, number of client IPs etc...'''
+    subnetv4 = Subnet('192.168.1.0/24')
+    subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
+    expected = ['192.168.1.0', '192.168.1.255', 254, '192.168.1.1 - 192.168.1.254', 'ac43:34f:0:0:0:0:0:0', 'ac43:34f:ffff:ffff:ffff:ffff:ffff:ffff', 79228162514264337593543950334, 'ac43:34f:0:0:0:0:0:1 - ac43:34f:ffff:ffff:ffff:ffff:ffff:fffe']
+    actual = list(subnetv4.info.values()) +  list(subnetv6.info.values())
+    assert actual == expected, "info function not working correctly."
 
 
 def test_address_errors():

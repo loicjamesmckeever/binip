@@ -311,7 +311,7 @@ class Subnet:
             Parameters
             ---
             address: str
-                Subnet address, either v4 or v6.
+                Subnet address, either v4 or v6, in CIDR notation.
             -----
             Returns
             ---

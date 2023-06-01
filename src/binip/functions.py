@@ -1,6 +1,21 @@
 import re
 
 def hex_range(first, last):
+    '''
+        Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range.
+        -----
+        Parameters
+        ---
+        first: hexadecimal int
+            First value of the range.
+        last: hexadecimal int
+            Last value of the range.
+        -----
+        Returns
+        ---
+        ranges: list
+            List of RegEx patterns that can be used to match every value in the given range.
+    '''
     ranges = []
     if first[0] == last[0]:
         if first[1]==last[1]:
@@ -121,7 +136,21 @@ def hex_range(first, last):
     return ranges
 
 def toRegexv6(subnet, or_logic='|'):
-    '''Returns a RegEx pattern to match the given IPv6 subnet.'''
+    '''
+        Returns a RegEx pattern to match the given IPv6 subnet.
+        -----
+        Parameters
+        ---
+        subnet: Subnet class object
+            Subnet to get RegEx pattern of.
+        or_logic: str
+            Symbol to be used as OR, default it |.
+        -----
+        Returns
+        ---
+        regex: str
+            RegEx pattern to match every IP address in the given IPv6subnet.
+    '''
     subnet_split = subnet.split('/')
     ipv6, mask = subnet_split[0], int(subnet_split[1])
     ipv6 = ipv6_expand(ipv6)
@@ -169,7 +198,21 @@ def toRegexv6(subnet, or_logic='|'):
     return regex
 
 def toRegexv4(subnet, or_logic='|'):
-    '''Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.'''
+    '''
+        Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.
+        -----
+        Parameters
+        ---
+        subnet: Subnet class object
+            Subnet to get RegEx pattern of.
+        or_logic: str
+            Symbol to be used as OR, default it |.
+        -----
+        Returns
+        ---
+        regex: str
+            RegEx pattern to match every IP address in the given IPv4 subnet.
+    '''
     subnet_split=subnet.split('.')
     mask=int(subnet_split[3].split('/')[1])
     first_octet=int(subnet_split[0])
@@ -298,16 +341,50 @@ def toRegexv4(subnet, or_logic='|'):
     return expressions_list_full
 
 def toRegex(subnet, or_logic='|'):
+        '''
+            Returns a RegEx pattern to match the given subnet.  Works for both IPv4 and IPv6.
+            -----
+            Parameters
+            ---
+            subnet: Subnet class object
+                Subnet to get RegEx pattern of.
+            or_logic: str
+                Symbol to be used as OR, default it |.
+            -----
+            Returns
+            ---
+            regex_pattern: str
+                RegEx pattern to match every IP address in the given subnet.
+            -----
+            Raises
+            ---
+            ValueError
+                If given subnet address is not a valid format.
+        '''
         subnet_split = subnet.split('/')
         iptype = ip_type(subnet_split[0])
         if iptype == 'v4':
-            regex_pattern = self.toRegexv4(self.address, or_logic)
+            regex_pattern = toRegexv4(subnet, or_logic)
         elif iptype == 'v6':
-            regex_pattern = self.toRegexv6(self.address, or_logic)
+            regex_pattern = toRegexv6(subnet, or_logic)
+        else:
+            raise ValueError(f'{subnet} is not a valid IPv4 or IPv6 subnet address')
         return regex_pattern
 
 def ip_type(ip):
-    '''Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.  Will return None if neither.'''
+    '''
+        Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.  Will return None if neither.
+        -----
+        Parameters
+        ---
+        ip: str
+            IP address in decimal or hexadecimal notation.
+        -----
+        Returns
+        ---
+        iptype: str
+            IP address type, either v4 or v6, or None if provided string isn't a valid IP address.
+    '''
     if '.' in ip:
         ip_split = ip.split('.')
         if len(ip_split) == 4:
@@ -340,7 +417,19 @@ def ip_type(ip):
     return iptype
 
 def ipv6_expand(ipv6):
-    '''Given a shortened IPv6 address will return the unshortened version.'''
+    '''
+        Given a shortened IPv6 address will return the unshortened version.
+        -----
+        Parameters
+        ---
+        ipv6: str
+            IPv6 address in hexadecimal notation.
+        -----
+        Returns
+        ---
+        expanded: str
+            Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
+    '''
     split = ipv6.split(':')
     zeros = ['0000' for i in range(0,9-len(split))]
     new_split = []
@@ -359,7 +448,19 @@ def ipv6_expand(ipv6):
     return new_ipv6
 
 def ipv6_contract(ipv6):
-    '''Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.'''
+    '''
+        Given an unshortened IPv6 address return contracted version.
+        -----
+        Parameters
+        ---
+        ipv6: str
+            IPv6 address in hexadecimal notation.
+        -----
+        Returns
+        ---
+        contracted: str
+            Shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+    '''
     ipv6 = ipv6_expand(ipv6)
     ipv6_split = ipv6.split(':')
     ipv6_contracted = []
@@ -395,7 +496,24 @@ def ipv6_contract(ipv6):
     return ipv6_contracted
 
 def ip2bin(ip):
-    '''Given an IP split will return the IP in binary format.  Works for both IPv4 and IPv6.'''
+    '''
+        Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
+        -----
+        Parameters
+        ---
+        ip: str
+            IP address in decimal or hexadecimal notation.
+        -----
+        Returns
+        ---
+        bin_ip: str
+            Same IP address in binary format.
+        -----
+        Raises
+        ---
+        ValueError
+            If given string is not a valid IP address.
+    '''
     iptype = ip_type(ip)
     bin_ip = ''
     if iptype == 'v4':
@@ -414,20 +532,51 @@ def ip2bin(ip):
     return bin_ip
 
 def bin2ip(bin_ip):
-        '''Given an IP in binary for returns decimal form for IPv4 and hexadecimal form for IPv6.'''
-        if len(bin_ip) == 32:
-            octets = [bin_ip[i:i+8] for i in range(0,32,8)]
-            ip_address = '.'.join([str(int(octet,2)) for octet in octets])
-        elif len(bin_ip) == 128:
-            hexadecatets = [bin_ip[i:i+16] for i in range(0,128, 16)]
-            ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
-        else:
-            raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
-                             the binary number you provided is {len(bin_ip)} bits long.''')
-        return ip_address
+    '''
+        Given an IP in binary format will return the IP in decimal, if IPv4, or hexadecimal, if IPv6, format.
+        -----
+        Parameters
+        ---
+        bin_ip: str
+            IP address in binary format.
+        -----
+        Returns
+        ---
+        bin_ip: str
+            Same IP address in decimal or hexadecimal format.
+        -----
+        Raises
+        ---
+        ValueError
+            If given binary string is not a valid IP address.
+    '''
+    if len(bin_ip) == 32:
+        octets = [bin_ip[i:i+8] for i in range(0,32,8)]
+        ip_address = '.'.join([str(int(octet,2)) for octet in octets])
+    elif len(bin_ip) == 128:
+        hexadecatets = [bin_ip[i:i+16] for i in range(0,128, 16)]
+        ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
+    else:
+        raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
+                            the binary number you provided is {len(bin_ip)} bits long.''')
+    return ip_address
 
 def in_subnet(ip, subnet):
-    '''Given an IP and a subnet will return True if that IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.'''
+    '''
+        Given an IP and a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
+        -----
+        Parameter
+        ---
+        ip: str
+            IP address.
+        subnet: str
+            Subnet address.
+        -----
+        Returns
+        ---
+        bool
+            True if IP is in the given subnet, otherwise returns False.
+    '''
     subnet_split = subnet.split('/')
     network = subnet_split[0]
     mask = int(subnet_split[1])
