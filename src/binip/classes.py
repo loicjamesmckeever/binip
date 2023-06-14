@@ -27,7 +27,7 @@ class IP:
         in_subnet(subnet):
             Given a subnet returns True if IP in subnet or False if IP not in subnet.
     '''
-    def __init__(self, address):
+    def __init__(self, address: str):
         '''
             Initialzing the IP class object.
             -----
@@ -49,7 +49,7 @@ class IP:
             self.expanded = self.ipv6_expand(address)
             self.contracted = self.ipv6_contract(address)
         
-    def validate_address(self, address):
+    def validate_address(self, address: str):
         '''
             Validates a given IP address, works for both IPv4 and IPv6.
             -----
@@ -132,7 +132,7 @@ class IP:
         return iptype
     
     @staticmethod
-    def ipv6_expand(address) -> str:
+    def ipv6_expand(address: str) -> str:
         '''
             Given a shortened IPv6 address will return the unshortened version.
             -----
@@ -164,7 +164,7 @@ class IP:
         return expanded
     
     @staticmethod
-    def ipv6_contract(address) -> str:
+    def ipv6_contract(address: str) -> str:
         '''
             Given an unshortened IPv6 address return contracted version.
             -----
@@ -242,7 +242,7 @@ class IP:
                 bin_ip += hexadecatet
         return bin_ip
     
-    def in_subnet(self, subnet) -> bool:
+    def in_subnet(self, subnet: str) -> bool:
         '''
             Given a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
             -----
@@ -304,7 +304,7 @@ class Subnet:
             Given an IP returns True if IP in subnet or False if IP not in subnet.
         -----
     '''
-    def __init__(self, address):
+    def __init__(self, address: str):
         '''
             Initialzing the Subnet class object.
             -----
@@ -339,7 +339,7 @@ class Subnet:
             self.expanded = self.ipv6_expand(address)
             self.contracted = self.ipv6_contract(address)
         
-    def validate_address(self, address):
+    def validate_address(self, address: str):
         '''
             Validates a given subnet address, works for both IPv4 and IPv6.
             -----
@@ -423,7 +423,7 @@ class Subnet:
         return iptype
     
     @staticmethod
-    def ipv6_expand(subnet) -> str:
+    def ipv6_expand(subnet: str) -> str:
         '''
             Given a shortened IPv6 subnet address will return the unshortened version.
             -----
@@ -457,7 +457,7 @@ class Subnet:
         return expanded
     
     @staticmethod
-    def ipv6_contract(subnet) -> str:
+    def ipv6_contract(subnet: str) -> str:
         '''
             Given an unshortened IPv6 subnet address return contracted version.
             -----
@@ -546,7 +546,7 @@ class Subnet:
         bin_network = ''.join([bin_network[:mask],''.join(['0' for bit in bin_network[mask:]])])
         return bin_network, bin_broadcast, bin_mask
     
-    def in_subnet(self, ip) -> bool:
+    def in_subnet(self, ip: str) -> bool:
         '''
             Given an IP will return True if the IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
             -----
@@ -598,16 +598,16 @@ class Subnet:
         return info
     
     @staticmethod
-    def hex_range(first, last) -> list:
+    def hex_range(first: str, last: str) -> list:
         '''
             Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range.
             -----
             Parameters
             ---
-            first: hexadecimal int
-                First value of the range.
-            last: hexadecimal int
-                Last value of the range.
+            first: str
+                First hexadecimal value of the range.
+            last: str
+                Last hexadecimal value of the range.
             -----
             Returns
             ---
@@ -734,7 +734,7 @@ class Subnet:
         return ranges
 
     @staticmethod
-    def toRegexv6(subnet, or_logic='|') -> str:
+    def toRegexv6(subnet: str, or_logic: str = '|') -> str:
         '''
             Returns a RegEx pattern to match the given IPv6 subnet.
             -----
@@ -797,7 +797,7 @@ class Subnet:
         return regex
 
     @staticmethod
-    def toRegexv4(subnet, or_logic='|') -> str:
+    def toRegexv4(subnet: str, or_logic: str = '|') -> str:
         '''
             Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.
             -----
@@ -941,7 +941,7 @@ class Subnet:
         regex =f'{or_logic}'.join([ranget for ranget in expressions_list])
         return regex
     
-    def toRegex(self, or_logic='|') -> str:
+    def toRegex(self, or_logic: str = '|') -> str:
         '''
             Returns a RegEx pattern to match the given subnet.  Works for both IPv4 and IPv6.
             -----

@@ -1,6 +1,6 @@
 import re
 
-def hex_range(first, last):
+def hex_range(first: int, last: int):
     '''
         Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range.
         -----
@@ -135,7 +135,7 @@ def hex_range(first, last):
         ranges.append(seventh_range)
     return ranges
 
-def toRegexv6(subnet, or_logic='|'):
+def toRegexv6(subnet: str, or_logic: str = '|'):
     '''
         Returns a RegEx pattern to match the given IPv6 subnet.
         -----
@@ -197,7 +197,7 @@ def toRegexv6(subnet, or_logic='|'):
         regex = f'{or_logic}'.join(full_ranges)
     return regex
 
-def toRegexv4(subnet, or_logic='|'):
+def toRegexv4(subnet: str, or_logic: str = '|'):
     '''
         Returns a RegEx pattern to match the given IPv4 subnet.  Written by Zephyr Zink.
         -----
@@ -340,7 +340,7 @@ def toRegexv4(subnet, or_logic='|'):
     expressions_list_full =f'{or_logic}'.join([ranget for ranget in expressions_list])
     return expressions_list_full
 
-def toRegex(subnet, or_logic='|'):
+def toRegex(subnet: str, or_logic: str = '|'):
         '''
             Returns a RegEx pattern to match the given subnet.  Works for both IPv4 and IPv6.
             -----
@@ -371,9 +371,9 @@ def toRegex(subnet, or_logic='|'):
             raise ValueError(f'{subnet} is not a valid IPv4 or IPv6 subnet address')
         return regex_pattern
 
-def ip_type(ip):
+def ip_type(address: str):
     '''
-        Given an IP will return 'v4' if IPv4 or 'v6' if IPv6.  Will return None if neither.
+        Given an IP or subnet will return 'v4' if IPv4 or 'v6' if IPv6.  Can also be used to validate IP and subnet addresses.
         -----
         Parameters
         ---
@@ -384,39 +384,60 @@ def ip_type(ip):
         ---
         iptype: str
             IP address type, either v4 or v6, or None if provided string isn't a valid IP address.
+        -----
+        Raises
+        ---
+        TyperError
+            If input parameter is not of type string.
+        ValueError
+            If the network mask is invalid.  Expected values are between 0 and 32 for IPv4 and between 0 and 128 for IPv6.
+            If the number of octets or hexadecatets is invalid.  Expected values are 4 and 8 for IPv4 and IPv6 respectively.
+            If an invalid decimal or hexadecimal is provided. Expected decimal values are between 0 and 255 for IPv4 and expected hexadecial values are between 0 and ffff for IPv6.
+            If an invalid IPv4 or IPv6 format is used.  Includes missing periods or colons as well as multiple zero contractions in IPv6.
     '''
-    if '.' in ip:
-        ip_split = ip.split('.')
-        if len(ip_split) == 4:
-            for octet in ip_split:
-                if int(octet) not in range(0,256):
-                    return None
-            iptype = 'v4'
-            return iptype
+    if type(address) == type(''):
+        if '/' in address:
+            address, mask = address.split('/')[0], int(address.split('/')[1])
         else:
-            return None
-    elif ':' in ip:
-        if ip.count('::') > 1:
-            return None
-        else:
-            ip_split = ip.split(':')
-            if len(ip_split) > 8:
-                return None
-            elif '::' not in ip and len(ip_split) != 8:
-                return None
-            else:
-                for hexadecatet in ip_split:
-                    if hexadecatet == '':
-                        hexadecatet = '0'
-                    if int(hexadecatet, 16) not in range(0,65536):
-                        return None
-                iptype = 'v6'
+            mask = 0
+        if '.' in address:
+            if mask not in range(0,33):
+                raise ValueError(f'Invalid IPv4 network mask: mask should be integer between 0 and 32. {mask} does not fall in that range.')
+            ip_split = address.split('.')
+            if len(ip_split) == 4:
+                for octet in ip_split:
+                    if int(octet) not in range(0,256):
+                        raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
+                iptype = 'v4'
                 return iptype
+            else:
+                raise ValueError(f'Wrong number of octets: there should be 4 octets.  The IP provided contains {len(ip_split)} octets.')
+        elif ':' in address:
+            if mask not in range(0,129):
+                raise ValueError(f'Invalid IPv6 network mask: mask should be integer between 0 and 128. {mask} does not fall in that range.')
+            if address.count('::') > 1:
+                count = address.count('::')
+                raise ValueError(f'Too many zero contractions: IPv6 addresses can only have a single set of 0s contracted to "::". The IP provided contains {count} contractions.')
+            else:
+                ip_split = address.split(':')
+                if len(ip_split) > 8:
+                    raise ValueError(f'Wrong number of hexadecatets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.')
+                elif '::' not in address and len(ip_split) != 8:
+                    raise ValueError(f'Wrong number of hexadecatets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.')
+                else:
+                    for hexadecatet in ip_split:
+                        if hexadecatet == '':
+                            hexadecatet = '0'
+                        if int(hexadecatet, 16) not in range(0,65536):
+                            raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
+                    iptype = 'v6'
+                    return iptype
+        else:
+            raise ValueError(f'Invalid format: {address} is not a valid IPv4 or IPv6 address.')
     else:
-        iptype = None
-    return iptype
+        raise TypeError(f'IP should be a string not {type(address)}.')
 
-def ipv6_expand(ipv6):
+def ipv6_expand(ipv6: str):
     '''
         Given a shortened IPv6 address will return the unshortened version.
         -----
@@ -447,7 +468,7 @@ def ipv6_expand(ipv6):
     new_ipv6 = ':'.join(new_split)
     return new_ipv6
 
-def ipv6_contract(ipv6):
+def ipv6_contract(ipv6: str):
     '''
         Given an unshortened IPv6 address return contracted version.
         -----
@@ -495,7 +516,7 @@ def ipv6_contract(ipv6):
     ipv6_contracted = ':'.join(ipv6_contracted)
     return ipv6_contracted
 
-def ip2bin(ip):
+def ip2bin(ip: str):
     '''
         Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
         -----
@@ -531,7 +552,7 @@ def ip2bin(ip):
         raise ValueError(f'''{ip} is neither an IPv4 or an IPv6 address.''')
     return bin_ip
 
-def bin2ip(bin_ip):
+def bin2ip(bin_ip: str):
     '''
         Given an IP in binary format will return the IP in decimal, if IPv4, or hexadecimal, if IPv6, format.
         -----
@@ -561,7 +582,7 @@ def bin2ip(bin_ip):
                             the binary number you provided is {len(bin_ip)} bits long.''')
     return ip_address
 
-def in_subnet(ip, subnet):
+def in_subnet(ip: str, subnet: str):
     '''
         Given an IP and a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
         -----
