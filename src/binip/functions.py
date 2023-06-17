@@ -439,18 +439,25 @@ def ip_type(address: str):
 
 def ipv6_expand(ipv6: str):
     '''
-        Given a shortened IPv6 address will return the unshortened version.
+        Given a shortened IPv6 or subnet address will return the unshortened version.
         -----
         Parameters
         ---
         ipv6: str
-            IPv6 address in hexadecimal notation.
+            IPv6 or subnet address in hexadecimal notation.
         -----
         Returns
         ---
         expanded: str
-            Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
+            Expanded IPv6 or subnet address.  Adds leading zeros and expands contraced zeros.
     '''
+    iptype = ip_type(ipv6)
+    if iptype == 'v4':
+        raise ValueError('Invalid IP type: IP must be v6.')
+    if '/' in ipv6:
+        ipv6, mask = ipv6.split('/')[0], ipv6.split('/')[1]
+    else:
+        mask = ''
     split = ipv6.split(':')
     zeros = ['0000' for i in range(0,9-len(split))]
     new_split = []
@@ -465,24 +472,34 @@ def ipv6_expand(ipv6: str):
             new_split.append(hexadecatet)
         else:
             new_split.append(hexadecatet)
-    new_ipv6 = ':'.join(new_split)
+    if mask == '':
+        new_ipv6 = ':'.join(new_split)
+    else:
+        new_ipv6 = ':'.join(new_split) + '/' + mask
     return new_ipv6
 
 def ipv6_contract(ipv6: str):
     '''
-        Given an unshortened IPv6 address return contracted version.
+        Given an unshortened IPv6 or subnet address return contracted version.
         -----
         Parameters
         ---
         ipv6: str
-            IPv6 address in hexadecimal notation.
+            IPv6 or subnet address in hexadecimal notation.
         -----
         Returns
         ---
         contracted: str
-            Shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+            Shortened IPv6 or subnet address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
     '''
+    iptype = ip_type(ipv6)
     ipv6 = ipv6_expand(ipv6)
+    if iptype == 'v4':
+        raise ValueError('Invalid IP type: IP must be v6.')
+    if '/' in ipv6:
+        ipv6, mask = ipv6.split('/')[0], ipv6.split('/')[1]
+    else:
+        mask = ''
     ipv6_split = ipv6.split(':')
     ipv6_contracted = []
     #Remove leading zeros
@@ -513,63 +530,76 @@ def ipv6_contract(ipv6: str):
     for item in replacing_zeros[1:]:
         ipv6_contracted.pop(item-i)
         i += 1
-    ipv6_contracted = ':'.join(ipv6_contracted)
+    if mask == '':
+        ipv6_contracted = ':'.join(ipv6_contracted)
+    else:
+        ipv6_contracted = ':'.join(ipv6_contracted) + '/' + mask
     return ipv6_contracted
 
 def ip2bin(ip: str):
     '''
-        Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
+        Given an IP or subnet will return the IP in binary format.  Works for both IPv4 and IPv6.
         -----
         Parameters
         ---
         ip: str
-            IP address in decimal or hexadecimal notation.
+            IP or subnet address in decimal or hexadecimal notation.
         -----
         Returns
         ---
         bin_ip: str
             Same IP address in binary format.
-        -----
-        Raises
-        ---
-        ValueError
-            If given string is not a valid IP address.
+        bin_mask: str
+            For subnet inputs, subnet mask in binary format.
     '''
     iptype = ip_type(ip)
+    if '/' in ip:
+        ip, mask = ip.split('/')[0], int(ip.split('/')[1])
+    else:
+        mask = None
     bin_ip = ''
     if iptype == 'v4':
         split_ip = ip.split('.')
         for octet in split_ip:
             octet = format(int(octet), '08b')
             bin_ip += octet
+        if mask is not None:
+            bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,32)])
+            return bin_ip, bin_mask
     elif iptype == 'v6':
         ip = ipv6_expand(ip)
         split_ip = ip.split(':')
         for octet in split_ip:
             octet = format(int(octet, 16), '016b')
             bin_ip += octet
-    else:
-        raise ValueError(f'''{ip} is neither an IPv4 or an IPv6 address.''')
+        if mask is not None:
+            bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,128)])
+            return bin_ip, bin_mask
     return bin_ip
 
-def bin2ip(bin_ip: str):
+def bin2ip(bin_ip: str, bin_mask: str = None):
     '''
-        Given an IP in binary format will return the IP in decimal, if IPv4, or hexadecimal, if IPv6, format.
+        Given an IP, and optionally a network mask, in binary format will return the IP or subnet address in decimal, if IPv4, or hexadecimal, if IPv6, format.
         -----
         Parameters
         ---
         bin_ip: str
             IP address in binary format.
+        bin_mask: str, optional
+            Network mask in binary forat.
         -----
         Returns
         ---
-        bin_ip: str
+        ip_address: str
             Same IP address in decimal or hexadecimal format.
+        subnet_address: str
+            Subnet address in decimal or hexadecimal format, assuming binary network ask was provided.
         -----
         Raises
         ---
         ValueError
-            If given binary string is not a valid IP address.
+            If any digits other than 0 or 1 are used in the binary format.
+            If given binary string is not a valid IP address; it must be 32 digits for IPv4 and 128 digits for IPv6.
     '''
     if len(bin_ip) == 32:
         octets = [bin_ip[i:i+8] for i in range(0,32,8)]
@@ -580,7 +610,12 @@ def bin2ip(bin_ip: str):
     else:
         raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
                             the binary number you provided is {len(bin_ip)} bits long.''')
-    return ip_address
+    if bin_mask is None:
+        return ip_address
+    else:
+        mask = bin_mask.count('1')
+        subnet_address = ip_address + '/' + str(mask)
+        return subnet_address
 
 def in_subnet(ip: str, subnet: str):
     '''

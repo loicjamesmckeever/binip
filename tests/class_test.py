@@ -37,11 +37,14 @@ def test_binip():
     assert actual == expected, "binip() method is not functioning correctly."
 
 def test_in_subnet():
-    '''Test in_subnet() method of IP class.'''
+    '''Test in_subnet() method of IP and Subnet classes.'''
     ipv4 = IP('192.168.1.24')
     ipv6 = IP('ac43:34f:45bc:2c::12')
-    expected = [True, False, True, False]
-    actual = [ipv4.in_subnet('192.168.1.0/24'), ipv4.in_subnet('192.168.2.0/24'), ipv6.in_subnet('ac43:34f:45bc:2c::12/32'), ipv6.in_subnet('ac43:34fa:45bc:2c::12/32')]
+    subnetv4 = Subnet('192.168.1.0/24')
+    subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
+    expected = [True, False, True, False, True, False, True, False]
+    actual = [ipv4.in_subnet('192.168.1.0/24'), ipv4.in_subnet('192.168.2.0/24'), ipv6.in_subnet('ac43:34f:45bc:2c::12/32'), ipv6.in_subnet('ac43:34fa:45bc:2c::12/32'),
+              subnetv4.in_subnet('192.168.1.24'), subnetv4.in_subnet('192.168.2.24'), subnetv6.in_subnet('ac43:34f:45bc:2c::12'), subnetv6.in_subnet('bc43:34f:45bc:2c::12')]
     assert actual == expected, "in_subnet() method is not functioning correctly."
 
 def test_subnet_info():
@@ -49,9 +52,8 @@ def test_subnet_info():
     subnetv4 = Subnet('192.168.1.0/24')
     subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
     expected = ['192.168.1.0', '192.168.1.255', 254, '192.168.1.1 - 192.168.1.254', 'ac43:34f:0:0:0:0:0:0', 'ac43:34f:ffff:ffff:ffff:ffff:ffff:ffff', 79228162514264337593543950334, 'ac43:34f:0:0:0:0:0:1 - ac43:34f:ffff:ffff:ffff:ffff:ffff:fffe']
-    actual = list(subnetv4.info.values()) +  list(subnetv6.info.values())
+    actual = list(subnetv4.info.values()) + list(subnetv6.info.values())
     assert actual == expected, "info function not working correctly."
-
 
 def test_address_errors():
     '''Test that the IP class raises the proper errors given invalid inputs.'''
