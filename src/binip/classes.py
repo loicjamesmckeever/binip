@@ -304,7 +304,7 @@ class Subnet:
             Given an IP returns True if IP in subnet or False if IP not in subnet.
         -----
     '''
-    def __init__(self, address: str):
+    def __init__(self, subnet: str):
         '''
             Initialzing the Subnet class object.
             -----
@@ -315,14 +315,18 @@ class Subnet:
             -----
             Returns
             ---
-            address: str
+            subnet: str
                 Validated subnet address, etiher v4 or v6.
-            iptype: str
-                Either 'v4' or 'v6' depending on IP type.
-            network: str
-                Network address of subnet.
+            address: str
+                IP address of given subnet.
             mask: int
                 Subnet mask.
+            network: str
+                Network address of subnet.
+            fullnetwork: str
+                Network address of subnet with subnet mask
+            iptype: str
+                Either 'v4' or 'v6' depending on IP type.
             info: dict
                 Subnet info; network and broadcast addresses, nuber of IPs and IP range of subnet.
             expanded: str
@@ -330,27 +334,29 @@ class Subnet:
             contracted: str
                 Contracted version of IPv6 subnet address.
         '''
-        self.address = self.validate_address(address)
-        self.network = self.address.split('/')[0]
-        self.mask = int(self.address.split('/')[1])
+        self.subnet = self.validate_address(subnet)
+        self.address = self.subnet.split('/')[0]
+        self.mask = int(self.subnet.split('/')[1])
+        self.network = bin2ip(self.binip()[0])
+        self.fullnetwork = self.network + f'/{self.mask}'
         self.iptype = self.ip_type()
         self.info = self.subnet_info()
         if self.iptype == 'v6':
-            self.expanded = self.ipv6_expand(address)
-            self.contracted = self.ipv6_contract(address)
+            self.expanded = self.ipv6_expand(subnet)
+            self.contracted = self.ipv6_contract(subnet)
         
-    def validate_address(self, address: str):
+    def validate_address(self, subnet: str):
         '''
             Validates a given subnet address, works for both IPv4 and IPv6.
             -----
             Parameters
             ---
-            address: str
+            subnet: str
                 Subnet address, either v4 or v6.
             -----
             Returns
             ---
-            address: str
+            subnet: str
                 Validated subnet address, either v4 or v6.
             -----
             Raises
@@ -363,8 +369,8 @@ class Subnet:
                 If an invalid decimal or hexadecimal is provided. Expected decimal values are between 0 and 255 for IPv4 and expected hexadecial values are between 0 and ffff for IPv6.
                 If an invalid IPv4 or IPv6 format is used.  Includes missing periods or colons as well as multiple zero contractions in IPv6.
         '''
-        if type(address) == type(''):
-            split_subnet = address.split('/')
+        if type(subnet) == type(''):
+            split_subnet = subnet.split('/')
             if len(split_subnet) == 2:
                 network = split_subnet[0]
                 mask = int(split_subnet[1])
@@ -377,30 +383,30 @@ class Subnet:
                     for octet in ip_split:
                         if int(octet) not in range(0,256):
                             raise ValueError(f'Invalid decimal value: each octet should be a decimal value between 0 and 255. {octet} does not fall in that range.')
-                    return address
+                    return subnet
                 elif ':' in network:
                     if mask not in range(0,129):
                         raise ValueError(f'Invalid IPv6 network mask: mask should be integer between 0 and 128. {mask} does not fall in that range.')
-                    expanded = self.ipv6_expand(address).split('/')[0]
+                    expanded = self.ipv6_expand(subnet).split('/')[0]
                     ip_split = expanded.split(':')
                     if len(ip_split) != 8:
                         raise ValueError(f'Wrong number of octets: there should be 8 hexadecatets.  The IP provided contains {len(ip_split)} hexadecatets.')
                     for hexadecatet in ip_split:
                         if int(hexadecatet, 16) not in range(0,65536):
                             raise ValueError(f'Invalid hexadecimal value: each hexadecatet should be a hexadecimal value between 0 and ffff. {hexadecatet} does not fall in that range.')
-                    return address
+                    return subnet
                 else:
-                    raise ValueError(f'Invalid format: {address} is not a valid subnet format.')
+                    raise ValueError(f'Invalid format: {subnet} is not a valid subnet format.')
             else:
-                raise ValueError(f'Invalid format: {address} is not a valid subnet format.')
+                raise ValueError(f'Invalid format: {subnet} is not a valid subnet format.')
         else:
-            raise TypeError(f'Subnet should be a string not a {type(address)}')
+            raise TypeError(f'Subnet should be a string not a {type(subnet)}')
     
     def __str__(self) -> str:
-        return self.address
+        return self.subnet
     
     def __repr__(self) -> str:
-        return f'Subnet address: {self.address}, subnet IP type: {self.iptype}'
+        return f'Subnet address: {self.subnet}, subnet IP type: {self.iptype}'
     
     def ip_type(self) -> str:
         '''
@@ -416,9 +422,9 @@ class Subnet:
             iptype: str
                 Subnet address type, either v4 or v6.
         '''
-        if '.' in self.address:
+        if '.' in self.subnet:
             iptype = 'v4'
-        elif ':' in self.address:
+        elif ':' in self.subnet:
             iptype = 'v6'
         return iptype
     
@@ -526,7 +532,7 @@ class Subnet:
                 Network mask in binary format.
         '''
         iptype = self.ip_type()
-        network = self.network
+        network = self.address
         mask = self.mask
         bin_network = ''
         if iptype == 'v4':
@@ -536,7 +542,7 @@ class Subnet:
                 bin_network += octet
             bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,32)])
         elif iptype == 'v6':
-            network = ipv6_expand(self.network)
+            network = ipv6_expand(self.address)
             split_network = network.split(':')
             for hexadecatet in split_network:
                 hexadecatet = format(int(hexadecatet, 16), '016b')
