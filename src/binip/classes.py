@@ -316,15 +316,17 @@ class Subnet:
             Returns
             ---
             subnet: str
-                Validated subnet address, etiher v4 or v6.
-            address: str
-                IP address of given subnet.
+                Validated subnet address, either v4 or v6, as input by user.
             mask: int
                 Subnet mask.
             network: str
                 Network address of subnet.
-            fullnetwork: str
-                Network address of subnet with subnet mask
+            networkcidr: str
+                Network address of subnet in CIDR notation.
+            broadcast: str
+                Broadcast address of subnet.
+            broadcastcidr: str
+                Broadcast address of subnet in CIDR notation.
             iptype: str
                 Either 'v4' or 'v6' depending on IP type.
             info: dict
@@ -335,10 +337,11 @@ class Subnet:
                 Contracted version of IPv6 subnet address.
         '''
         self.subnet = self.validate_address(subnet)
-        self.address = self.subnet.split('/')[0]
         self.mask = int(self.subnet.split('/')[1])
         self.network = bin2ip(self.binip()[0])
-        self.fullnetwork = self.network + f'/{self.mask}'
+        self.networkcidr = self.network + f'/{self.mask}'
+        self.broadcast = bin2ip(self.binip()[1])
+        self.broadcastcidr = self.broadcast + f'/{self.mask}'
         self.iptype = self.ip_type()
         self.info = self.subnet_info()
         if self.iptype == 'v6':
@@ -532,7 +535,7 @@ class Subnet:
                 Network mask in binary format.
         '''
         iptype = self.ip_type()
-        network = self.address
+        network = self.subnet.split('/')[0]
         mask = self.mask
         bin_network = ''
         if iptype == 'v4':
@@ -542,7 +545,7 @@ class Subnet:
                 bin_network += octet
             bin_mask = ''.join(['1' if i < mask else '0' for i in range(0,32)])
         elif iptype == 'v6':
-            network = ipv6_expand(self.address)
+            network = ipv6_expand(network)
             split_network = network.split(':')
             for hexadecatet in split_network:
                 hexadecatet = format(int(hexadecatet, 16), '016b')
