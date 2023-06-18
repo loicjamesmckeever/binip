@@ -18,12 +18,30 @@ IP:
 
 Input: IPv4 or IPv6 address.
 
+    ipv4 = IP('192.168.1.24')
+    ipv6 = IP('ac43:34f:45bc:2c:0:0:0:12')
+
 Attributes:
 
 - address: str, IP address.
+
+        ipv4.address
+        '192.168.1.24'
+  
 - iptype: str, 'v4' or 'v6'.
+
+        ipv4.iptype
+        'v4'
+  
 - expanded(for IPv6 only):str, expanded IPv6 address.
+
+        ipv6.expanded
+        'ac43:034f:45bc:002c:0000:0000:0000:0012'
+
 - contracted(for IPv6 only):str, contracted IPv6 address.
+
+        ipv6.contracted
+        'ac43:34f:45bc:2c::12'
 
 Methods:
 
@@ -38,13 +56,51 @@ Subnet:
 
 Input: IPv4 or IPv6 subnet address, CIDR notation.
 
+    subnetv4 = Subnet('192.168.1.12/24')
+    subnetv6 = Subnet('ac43:34f:45bc:2c:0:0:0:12/64')
+
 Attributes:
 
-- address: str, subnet address.
+- subnet: str, subnet address.
+
+        subnetv4.subnet
+        '192.168.1.12/24'
+
 - network: str, network address for subnet.
-- mask: str, subnet mask.
+
+        subnetv4.network
+        '192.168.1.0'
+
+- networkcidr: str, network address for subnet in CIDR notation.
+
+        subnetv4.networkcidr
+        '192.168.1.0/24'
+
+- broadcast: str, broadcast address for subnet.
+
+        subnetv4.broadcast
+        '192.168.1.255'
+
+- broadcastcidr: str, broadcast address for subnet in CIDR notation.
+
+        subnetv4.broadcastcidr
+        '192.168.1.255/24'
+
+- mask: int, subnet mask.
+
+        subnetv4.mask
+        24
+
 - iptype: str, 'v4' or 'v6'.
+
+        subnetv4.iptype
+        'v4'
+
 - info: dict, info on subnet.
+
+        subnetv4.info
+        {'Network address:': '192.168.1.0', 'Broadcast address': '192.168.1.255', 'Number of client IPs:': 254, 'Client IP range:': '192.168.1.1 - 192.168.1.254'}
+
 
 Methods:
 
