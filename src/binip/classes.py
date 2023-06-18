@@ -108,8 +108,7 @@ class IP:
         return self.address
     
     def __repr__(self) -> str:
-        return f'IP address: {self.address}, IP type: {self.iptype}'
-
+        return self.address
         
     def ip_type(self) -> str:
         '''
@@ -277,14 +276,28 @@ class Subnet:
         -----
         Attributes
         ---
-        address: str
-            Full subnet address.
-        network: str
-            Network address of subnet.
+        subnet: str
+            Validated subnet address, either v4 or v6, as input by user.
         mask: int
             Subnet mask.
+        network: str
+            Network address of subnet.
+        networkcidr: str
+            Network address of subnet in CIDR notation.
+        broadcast: str
+            Broadcast address of subnet.
+        broadcastcidr: str
+            Broadcast address of subnet in CIDR notation.
         iptype: str
             Either v4 or v6.
+        info: dict
+            Subnet info; network and broadcast addresses, nuber of IPs and IP range of subnet.
+        expanded: str
+            Expended version of IPv6 subnet address.
+        contracted: str
+            Contracted version of IPv6 subnet address.
+        ips: list
+            List of IP class objects that have been added to the Subnet object.
         -----
         Methods
         ---
@@ -335,6 +348,8 @@ class Subnet:
                 Expended version of IPv6 subnet address.
             contracted: str
                 Contracted version of IPv6 subnet address.
+            ips: list
+                Empty list, IP class objects can be added to it, given they're in the Subnet.
         '''
         self.subnet = self.validate_address(subnet)
         self.mask = int(self.subnet.split('/')[1])
@@ -347,7 +362,8 @@ class Subnet:
         if self.iptype == 'v6':
             self.expanded = self.ipv6_expand(subnet)
             self.contracted = self.ipv6_contract(subnet)
-        
+        self.ips = []
+
     def validate_address(self, subnet: str):
         '''
             Validates a given subnet address, works for both IPv4 and IPv6.
@@ -406,10 +422,10 @@ class Subnet:
             raise TypeError(f'Subnet should be a string not a {type(subnet)}')
     
     def __str__(self) -> str:
-        return self.subnet
+        return self.networkcidr
     
     def __repr__(self) -> str:
-        return f'Subnet address: {self.subnet}, subnet IP type: {self.iptype}'
+        return self.networkcidr
     
     def ip_type(self) -> str:
         '''
@@ -515,6 +531,27 @@ class Subnet:
             i += 1
         contracted = ':'.join(ipv6_contracted) + '/' + mask
         return contracted
+    
+    def add_ip(self, ip):
+        '''
+            Add an IP class object to the Subnet if that IP is in said Subnet.
+            -----
+            Parameters
+            ---
+            ip: IP or str
+                IP to be added, if string given will convert to IP object.
+            -----
+            Raises
+            ---
+            ValueError
+                If the given IP is not in the Subnet.
+        '''
+        if type(ip) == type(''):
+            ip = IP(ip)
+        if self.in_subnet(ip.address):
+            self.ips.append(ip)
+        else:
+            raise ValueError(f'Invalid IP address: {ip} is not a part of the subnet {self.networkcidr}.')
     
     def binip(self) -> str:
         '''
