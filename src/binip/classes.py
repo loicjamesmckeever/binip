@@ -639,9 +639,45 @@ class Subnet:
         broadcast = bin2ip(bin_broadcast)
         first_ip = bin2ip(bin_network[:-1]+'1')
         last_ip = bin2ip(bin_broadcast[:-1]+'0')
-        client_range = first_ip + ' - ' + last_ip
-        info = {"Network address:":network, "Broadcast address":broadcast, "Number of client IPs:":clients, "Client IP range:":client_range}
+        client_range = (first_ip, last_ip)
+        info = {"Network":network, "Broadcast":broadcast, "Clients":clients, "Range":client_range}
         return info
+    
+    def ips_gen(self, end: int):
+        '''
+            Generator function to iterate over valid IPs of the subnet.
+            -----
+            Inputs
+            ---
+            start: int
+                Index of IP to start from.
+            end: int
+                Index of IP to end at.
+            step: int
+                Step to iterate by.
+            -----
+            Yields
+            ---
+            IP class objects of Subnet.
+            -----
+            Defaults
+            ---
+            start: 0
+                First IP of Subnet.
+            end: Subnet.info['Number of clients']-1
+                Last IP of Subnet.
+            step: 1
+                Iterate through IPs one at a time.
+        '''
+        max = self.info['Clients']-1
+        if end > max:
+            raise IndexError(f'{end} out of range, max index is {max}.')
+        i = 0
+        ip = self.binip()[0]
+        while i < end:
+            yield bin2ip(ip)
+            i += 1
+            ip = ip[:self.mask] + format(int(ip[self.mask:], 2) + 1, '08b')
     
     @staticmethod
     def hex_range(first: str, last: str) -> list:
