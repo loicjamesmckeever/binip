@@ -51,7 +51,7 @@ def test_subnet_info():
     '''Test subnet info such as mask, gateway, number of client IPs etc...'''
     subnetv4 = Subnet('192.168.1.0/24')
     subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
-    expected = ['192.168.1.0', '192.168.1.255', 254, '192.168.1.1 - 192.168.1.254', 'ac43:34f:0:0:0:0:0:0', 'ac43:34f:ffff:ffff:ffff:ffff:ffff:ffff', 79228162514264337593543950334, 'ac43:34f:0:0:0:0:0:1 - ac43:34f:ffff:ffff:ffff:ffff:ffff:fffe']
+    expected = ['192.168.1.0', '192.168.1.255', 254, ('192.168.1.1','192.168.1.254'), 'ac43:34f:0:0:0:0:0:0', 'ac43:34f:ffff:ffff:ffff:ffff:ffff:ffff', 79228162514264337593543950334, ('ac43:34f:0:0:0:0:0:1','ac43:34f:ffff:ffff:ffff:ffff:ffff:fffe')]
     actual = list(subnetv4.info.values()) + list(subnetv6.info.values())
     assert actual == expected, "info function not working correctly."
 
