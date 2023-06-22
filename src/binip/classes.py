@@ -673,7 +673,7 @@ class Subnet:
         if end > max:
             raise IndexError(f'{end} out of range, max index is {max}.')
         i = 0
-        ip = self.binip()[0]
+        ip = ip2bin(self.info['Range'][0])
         while i < end:
             yield bin2ip(ip)
             i += 1
