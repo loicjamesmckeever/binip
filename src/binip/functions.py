@@ -609,7 +609,7 @@ def bin2ip(bin_ip: str, bin_mask: str = None):
         ip_address = ':'.join([format(int(hexadecatet, 2), 'x') for hexadecatet in hexadecatets])
     else:
         raise ValueError(f'''{bin_ip} is not a valid binary IP address.  A binary IP address should either be 32 or 128 bits long for IPv4 and IPv6 address respectively.
-                            the binary number you provided is {len(bin_ip)} bits long.''')
+                            The binary number you provided is {len(bin_ip)} bits long.''')
     if bin_mask is None:
         return ip_address
     else:

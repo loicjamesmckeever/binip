@@ -643,7 +643,7 @@ class Subnet:
         info = {"Network":network, "Broadcast":broadcast, "Clients":clients, "Range":client_range}
         return info
     
-    def ips_gen(self, end: int):
+    def ipgen(self, start:int = 1, end: int = 100, step: int = 1):
         '''
             Generator function to iterate over valid IPs of the subnet.
             -----
@@ -662,22 +662,26 @@ class Subnet:
             -----
             Defaults
             ---
-            start: 0
+            start: 1
                 First IP of Subnet.
-            end: Subnet.info['Number of clients']-1
-                Last IP of Subnet.
+            end: 100
+                Hundreth IP of subnet.
             step: 1
                 Iterate through IPs one at a time.
         '''
         max = self.info['Clients']-1
+        if self.iptype == 'v4':
+            bits = '32'
+        elif self.iptype == 'v6':
+            bits = '128'
         if end > max:
             raise IndexError(f'{end} out of range, max index is {max}.')
         i = 0
-        ip = ip2bin(self.info['Range'][0])
+        ip = format(int(ip2bin(self.info['Range'][0]), 2) + (start-1), f'0{bits}b')
         while i < end:
             yield bin2ip(ip)
-            i += 1
-            ip = ip[:self.mask] + format(int(ip[self.mask:], 2) + 1, '08b')
+            i += step
+            ip = format(int(ip, 2) + step, f'0{bits}b')
     
     @staticmethod
     def hex_range(first: str, last: str) -> list:
