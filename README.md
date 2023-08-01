@@ -45,12 +45,29 @@ Attributes:
 
 Methods:
 
-- validate_address: Validates a given IP address, works for both IPv4 and IPv6.
-- ip_type: Returns either 'v4' or 'v6'.
-- ipv6_expand: Given a shortened IPv6 address will return the unshortened version.
-- ipv6_contract: Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
-- binip: Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
-- in_subnet Given a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
+- validate_address:
+
+  Validates a given IP address, works for both IPv4 and IPv6.
+  
+- ip_type:
+
+  Returns either 'v4' or 'v6'.
+  
+- ipv6_expand:
+
+  Given a shortened IPv6 address will return the unshortened version.
+  
+- ipv6_contract:
+
+  Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+  
+- binip:
+
+  Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
+  
+- in_subnet
+
+  Given a subnet will return True if the IP is in that subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
 
 Subnet:
 
@@ -104,15 +121,45 @@ Attributes:
 
 Methods:
 
-- validate_address: Validates a given IP address, works for both IPv4 and IPv6.
-- ip_type: Returns either 'v4' or 'v6'.
-- ipv6_expand: Given a shortened IPv6 address will return the unshortened version.
-- ipv6_contract: Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
-- binip: Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
-- in_subnet: Given an IP will return True if the IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
-- subnet_info: Returns the network address, broadcast address and number of client IPs available for the subnet.
-- toRegexv4: Returns a RegEx pattern to match the given IPv4 subnet.
-- toRegexv6: Returns a RegEx pattern to match the given IPv6 subnet.
+- validate_address:
+  
+  Validates a given IP address, works for both IPv4 and IPv6.
+  
+- ip_type:
+  
+  Returns either 'v4' or 'v6'.
+  
+- ipv6_expand:
+
+  Given a shortened IPv6 address will return the unshortened version.
+  
+- ipv6_contract:
+
+  Returns shortened IPv6 address.  Removes leading zeros and contracts largest set of repeating zero hexadecatets.
+  
+- binip:
+
+  Given an IP will return the IP in binary format.  Works for both IPv4 and IPv6.
+  
+- in_subnet:
+
+  Given an IP will return True if the IP is in the subnet, will return False if otherwise.  Works for both IPv4 and IPv6.
+  
+- subnet_info:
+  
+  Returns the network address, broadcast address and number of client IPs available for the subnet.
+  
+- toRegexv4:
+
+  Returns a RegEx pattern to match the given IPv4 subnet.
+  
+- toRegexv6:
+
+  Returns a RegEx pattern to match the given IPv6 subnet.
+  
+- ipgen:
+
+  Generator function to iterate over IPs in the Subnet given a starting index, ending index and step.
     
 **Functions:**
 
