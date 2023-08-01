@@ -8,7 +8,7 @@ Library for IP networking and subnetting.
 
 Download .whl file and run:
 
-    pip install binip-1.0.0-py3-none-any.whl
+    pip install binip
 
 ### Usage:
 
