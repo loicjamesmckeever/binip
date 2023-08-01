@@ -669,7 +669,7 @@ class Subnet:
             step: 1
                 Iterate through IPs one at a time.
         '''
-        max = self.info['Clients']-1
+        max = self.info['Clients']+1
         if self.iptype == 'v4':
             bits = '32'
         elif self.iptype == 'v6':
@@ -678,7 +678,7 @@ class Subnet:
             raise IndexError(f'{end} out of range, max index is {max}.')
         i = 0
         ip = format(int(ip2bin(self.info['Range'][0]), 2) + (start-1), f'0{bits}b')
-        while i < end:
+        while i <= end:
             yield bin2ip(ip)
             i += step
             ip = format(int(ip, 2) + step, f'0{bits}b')

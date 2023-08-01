@@ -194,14 +194,27 @@ Methods:
         True
         in_subnet('192.168.1.24', '192.168.2.0/24')
         False
+
+- hex_range: Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range. Used in the toRegexv6 function.
+
+        hex_range('0000', 'aaaa')
+        hex_range('0000', 'aaaa')
+        ['[0-9a-f]{0,1}', '[0-9a-f]{0,1}[0-9a-f]{0,1}', '[0-9a-f]{1}[0-9a-f]{0,2}', '[1-9]{0,1}[0-9a-f]{0,3}', 'aaa[0-9a-a]{0,1}', 'aa[0-9a-9]{1}[0-9a-f]{0,1}', 'a[0-9a-9]{1}[0-9a-f]{0,2}']
     
-- toRegexv4: Returns a RegEx pattern to match the given IPv4 subnet.
+- toRegexv4: Returns a RegEx pattern to match the given IPv4 subnet. Used in the toRegex function.
 
         toRegexv4('192.168.1.0/14')
         '192.[1][6][8-9].[0-9]{1,3}.[0-9]{1,3}|192.[1][7][0-1].[0-9]{1,3}.[0-9]{1,3}'
     
-- toRegexv6: Returns a RegEx pattern to match the given IPv6 subnet.
+- toRegexv6: Returns a RegEx pattern to match the given IPv6 subnet. Used in the toRegex function.
 
+        toRegexv6('ac43:34f:45bc:2c::12/56')
+        'ac43:34f:45bc:[0-9a-f]{0,1}:.*|ac43:34f:45bc:[0-9a-f]{0,1}[0-9a-f]{0,1}:.*|ac43:34f:45bc:[1-9a-e]{1}[0-9a-f]{0,1}:.*|ac43:34f:45bc:f[0-9a-f]{0,1}:.*'
+
+- toRegex: Returns a RegEx pattern to match the given subnet.  Works for both IPv4 and IPv6.
+
+        toRegexv4('192.168.1.0/14')
+        '192.[1][6][8-9].[0-9]{1,3}.[0-9]{1,3}|192.[1][7][0-1].[0-9]{1,3}.[0-9]{1,3}'
         toRegexv6('ac43:34f:45bc:2c::12/56')
         'ac43:34f:45bc:[0-9a-f]{0,1}:.*|ac43:34f:45bc:[0-9a-f]{0,1}[0-9a-f]{0,1}:.*|ac43:34f:45bc:[1-9a-e]{1}[0-9a-f]{0,1}:.*|ac43:34f:45bc:f[0-9a-f]{0,1}:.*'
 

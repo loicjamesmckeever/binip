@@ -55,6 +55,16 @@ def test_subnet_info():
     actual = list(subnetv4.info.values()) + list(subnetv6.info.values())
     assert actual == expected, "info function not working correctly."
 
+def test_ipgen():
+    '''Test ipgen method of Subnet class.'''
+    subnetv4 = Subnet('192.168.1.0/24')
+    ip_listv4 = [ip for ip in subnetv4.ipgen(0,10,2)]
+    subnetv6 = Subnet('ac43:34f:45bc:2c::12/32')
+    ip_listv6 = [ip for ip in subnetv6.ipgen(0,10,2)]
+    expected = (['192.168.1.0', '192.168.1.2', '192.168.1.4', '192.168.1.6', '192.168.1.8', '192.168.1.10'],['ac43:34f:0:0:0:0:0:0', 'ac43:34f:0:0:0:0:0:2', 'ac43:34f:0:0:0:0:0:4', 'ac43:34f:0:0:0:0:0:6', 'ac43:34f:0:0:0:0:0:8', 'ac43:34f:0:0:0:0:0:a'])
+    actual = (ip_listv4, ip_listv6)
+    assert actual == expected, "ipgen function not working correctly."
+
 def test_address_errors():
     '''Test that the IP class raises the proper errors given invalid inputs.'''
     with pytest.raises(ValueError):
@@ -102,3 +112,9 @@ def test_subnet_address_errors():
         test = Subnet('Nonesense')
     with pytest.raises(TypeError):
         test = Subnet(123)
+
+def test_ipgen_error():
+    '''Test that ipgen method raises the proper error given invalid inputs.'''
+    subnet = Subnet('192.168.1.0/24')
+    with pytest.raises(IndexError):
+        ip_list = [ip for ip in subnet.ipgen(0,512,1)]
