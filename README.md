@@ -8,7 +8,14 @@ Library for IP networking and subnetting.
 
 Download .whl file and run:
 
-    pip install binip-0.0.1-py3-none-any.whl
+    pip install binip-1.0.0-py3-none-any.whl
+
+### Usage:
+
+Import the desired classes and or functions:
+
+    from binip.classes import [class]
+    from binip.functions import [function]
 
 ### Documentation:
 
