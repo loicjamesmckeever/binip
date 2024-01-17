@@ -123,7 +123,7 @@ Attributes:
 - info: dict, info on subnet.
 
         subnetv4.info
-        {'Network address:': '192.168.1.0', 'Broadcast address': '192.168.1.255', 'Number of client IPs:': 254, 'Client IP range:': '192.168.1.1 - 192.168.1.254'}
+        {'Network': '192.168.1.0', 'Broadcast': '192.168.1.255', 'Clients:': 254, 'Range:': ('192.168.1.1','192.168.1.254')}
 
 
 Methods:
