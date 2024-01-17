@@ -144,7 +144,7 @@ def toRegexv6(subnet: str, or_logic: str = '|'):
         subnet: Subnet class object
             Subnet to get RegEx pattern of.
         or_logic: str
-            Symbol to be used as OR, default it |.
+            Symbol to be used as OR, default is |.
         -----
         Returns
         ---
