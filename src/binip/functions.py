@@ -245,6 +245,7 @@ def toRegexv4(subnet: str, or_logic: str = '|'):
 
     if mask in (25,26,27,28,29,30,31,32):
         begin_ex=str(first_octet)+'.'+str(second_octet)+'.'+str(third_octet)+'.'
+        end_ex=''
         start=fourth_octet
 
     if mask in (9,17,25):
@@ -645,3 +646,39 @@ def in_subnet(ip: str, subnet: str):
         return True
     else:
         return False
+    
+def overlap(subnet1: str, subnet2: str):
+    '''
+        Given two subnets two subnets will return True if they overlap or are identical.  Will return False if the subnets don't overlap.
+        -----
+        Parameter
+        ---
+        subnet1: str
+            First subnet.
+        subnet2: str
+            Second subnet.
+        -----
+        Returns
+        ---
+        bool
+            True if subnets overlap, otherwise returns False.
+    '''
+    net1, mask1 = subnet1.split('/')
+    net2, mask2 = subnet2.split('/')
+    mask1, mask2 = int(mask1), int(mask2)
+    bin1, bin2 = ip2bin(net1), ip2bin(net2)
+    if mask1 > mask2:
+        if bin1[:mask2] == bin2[:mask2]:
+            return True
+        else:
+            return False
+    elif mask2 > mask1:
+        if bin1[:mask1] == bin2[:mask1]:
+            return True
+        else:
+            return False
+    elif mask1 == mask2:
+        if bin1[:mask1] == bin2[:mask2]:
+            return True
+        else:
+            return False

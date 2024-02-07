@@ -202,6 +202,13 @@ Methods:
         in_subnet('192.168.1.24', '192.168.2.0/24')
         False
 
+- overlap: Given two subnets two subnets will return True if they overlap or are identical.  Will return False if the subnets don't overlap.
+
+        overlap('172.16.0.0/12', '172.16.0.0/16')
+        True
+        overlap('172.16.0.0/12', '172.10.0.0/16')
+        False
+        
 - hex_range: Given the first and last hexadecimal values of a range returns a list of ReGex patterns to match each value of that range. Used in the toRegexv6 function.
 
         hex_range('0000', 'aaaa')
