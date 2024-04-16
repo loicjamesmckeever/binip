@@ -460,6 +460,8 @@ def ipv6_expand(ipv6: str):
     else:
         mask = ''
     split = ipv6.split(':')
+    if ipv6[-2:] == '::':
+        split.pop()
     zeros = ['0000' for i in range(0,9-len(split))]
     new_split = []
     for hexadecatet in split:
@@ -517,7 +519,7 @@ def ipv6_contract(ipv6: str):
         if ipv6_contracted[i] == '0':
             zeros.append(i)
             j=1
-            while ipv6_contracted[i+j] == '0':
+            while i+j < 8 and ipv6_contracted[i+j] == '0':
                 zeros.append(i+j)
                 j+=1
             i+=j
@@ -531,6 +533,8 @@ def ipv6_contract(ipv6: str):
     for item in replacing_zeros[1:]:
         ipv6_contracted.pop(item-i)
         i += 1
+    if ipv6_contracted[-1] == '':
+        ipv6_contracted.append('')
     if mask == '':
         ipv6_contracted = ':'.join(ipv6_contracted)
     else:

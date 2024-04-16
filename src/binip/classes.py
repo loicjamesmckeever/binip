@@ -146,6 +146,8 @@ class IP:
                 Expanded IPv6 address.  Adds leading zeros and expands contraced zeros.
         '''
         split = address.split(':')
+        if address[-2:] == '::':
+            split.pop()
         zeros = ['0000' for i in range(0,9-len(split))]
         new_split = []
         for hexadecatet in split:
@@ -194,7 +196,7 @@ class IP:
             if ipv6_contracted[i] == '0':
                 zeros.append(i)
                 j=1
-                while ipv6_contracted[i+j] == '0':
+                while i+j < 8 and ipv6_contracted[i+j] == '0':
                     zeros.append(i+j)
                     j+=1
                 i+=j
@@ -208,6 +210,8 @@ class IP:
         for item in replacing_zeros[1:]:
             ipv6_contracted.pop(item-i)
             i += 1
+        if ipv6_contracted[-1] == '':
+            ipv6_contracted.append('')
         contracted = ':'.join(ipv6_contracted)
         return contracted
     

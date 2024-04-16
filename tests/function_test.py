@@ -77,9 +77,9 @@ def test_ipv6_expand():
 
 def test_ipv6_contract():
     '''Test the ipv6_contract function.'''
-    ipv6 = 'ac43:034f:45bc:002c:0000:0000:0000:0012'
-    subnetv6 = 'ac43:034f:45bc:002c:0000:0000:0000:0012/64'
-    expected = ['ac43:34f:45bc:2c::12', 'ac43:34f:45bc:2c::12/64']
+    ipv6 = 'ac43:034f:0000:002c:0000:0000:0000:0000'
+    subnetv6 = 'ac43:034f:0000:002c:0000:0000:0000:0000/64'
+    expected = ['ac43:34f:0:2c::12', 'ac43:34f:0:2c::12/64']
     actual = [ipv6_contract(ipv6), ipv6_contract(subnetv6)]
     assert expected == actual, "ipv6_contract function fails IPv6 contraction."
 
